@@ -1,35 +1,43 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import React, { useEffect } from "react";
+import AppRouter from "./AppRouter";
+import { Container } from "react-bootstrap";
+import AppNavbar from "./components/common/AppNavbar";
+import { useSelector, useDispatch } from "react-redux";
+import appTheme from "./styles/theme";
+import { clearState } from "./utils/localStorage";
+import { useNavigate } from "react-router-dom";
 
-function App() {
-  const [count, setCount] = useState(0)
+const App = () => {
+  const app = useSelector((state) => state.app);
+  const theme = app.darkMode ? appTheme.dark : appTheme.light;
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    dispatch({ type: "auth/initializeAuth" });
+  }, [dispatch]);
+
+  const handleLogout = () => {
+    // clearState();
+    dispatch({ type: "CLEAR_CART" });
+    dispatch({ type: "auth/clearUser" });
+    navigate("/signin");
+  };
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
-}
+    <Container
+      fluid
+      style={{
+        background: theme.colors.gradientBackground,
+        color: theme.colors.textLight,
+        fontFamily: theme.colors.fontFamily,
+        minHeight: "100vh",
+      }}
+    >
+      <AppNavbar handleLogout={handleLogout} />
+      <AppRouter />
+    </Container>
+  );
+};
 
-export default App
+export default App;

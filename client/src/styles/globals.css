@@ -1,0 +1,81 @@
+/* globals.css */
+html,
+body,
+#root {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+}
+
+body {
+    background: none;
+    font-family: Arial, sans-serif;
+}
+
+/* Apply custom styles to the browser's autofill background */
+input:-webkit-autofill {
+    background-color: #0b1120 !important;
+    /* Match your dark blue background */
+    color: #ffffff !important;
+    /* Make autofilled text white */
+    font-family: Arial, sans-serif;
+    /* Ensure consistency with theme font */
+    border: 1px solid #94a3b8;
+    /* Match the border style */
+    border-radius: 5px;
+}
+
+/* Remove the default yellow autofill shadow */
+input:-webkit-autofill {
+    -webkit-box-shadow: 0 0 0px 1000px #0b1120 inset;
+    box-shadow: 0 0 0px 1000px #0b1120 inset;
+}
+
+/* Ensure hover and focus states don't break */
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus {
+    background-color: #0b1120 !important;
+    /* Maintain dark blue on hover/focus */
+}
+
+
+/* Customize placeholder text */
+input::placeholder {
+    color: #c4c4c4 !important;
+    /* Use a muted white for better readability */
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    /* Adjust size if necessary */
+}
+
+/* Optional: Style placeholder on focus */
+input:focus::placeholder {
+    color: #ffffff;
+    /* Change to full white when focused */
+}
+
+/* Customize the checkbox appearance */
+input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    background-color: #1e293b;
+    /* Match your input background */
+    border: 1px solid #94a3b8;
+    /* Match input border color */
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+/* Checked state */
+input[type="checkbox"]:checked {
+    background-color: #388bf8;
+    /* Match your primary color */
+    border-color: #388bf8;
+}
+
+/* Customize focus outline */
+input[type="checkbox"]:focus {
+    outline: none;
+    box-shadow: 0 0 2px 2px rgba(56, 189, 248, 0.5);
+    /* Optional focus glow */
+}
