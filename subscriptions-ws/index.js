@@ -30,7 +30,7 @@ const accessLogStream = fs.createWriteStream(
 connectDB().then(initData());
 setupSwagger(app);
 
-// app.use(apiKeyMiddleware);
+app.use(apiKeyMiddleware);
 app.use(cors());
 app.use(express.json());
 app.use(morgan("combined", { stream: accessLogStream }));

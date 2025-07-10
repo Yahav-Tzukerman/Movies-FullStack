@@ -8,7 +8,7 @@ const connectDB = async () => {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });
-    console.log("✅ Connected to MoviesDB successfully");
+    console.log("✅ Connected to SubscriptionsDB successfully");
   } catch (error) {
     console.error("❌ MongoDB connection error:", error.message);
     process.exit(1); // Exit the app if DB connection fails

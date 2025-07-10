@@ -5,9 +5,9 @@ const options = {
   definition: {
     openapi: "3.0.0",
     info: {
-      title: "Factory Manager API",
+      title: "Subscriptions WS API",
       version: "1.0.0",
-      description: "API documentation for Factory Manager backend",
+      description: "API documentation for Subscriptions WS backend",
     },
     // components: {
     //   securitySchemes: {

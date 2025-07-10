@@ -2,7 +2,7 @@ require("dotenv").config();
 
 module.exports = {
   jwtSecret: process.env.JWT_SECRET,
-  port: process.env.PORT || 5000,
+  port: process.env.PORT || 5001,
   env: process.env.APP_ENV || "development",
   dbUri:
     process.env.APP_ENV == "production"
