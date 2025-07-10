@@ -5,16 +5,16 @@ const options = {
   definition: {
     openapi: "3.0.0",
     info: {
-      title: "Factory Manager API",
+      title: "Cinema WS API",
       version: "1.0.0",
-      description: "API documentation for Factory Manager backend",
+      description: "API documentation for Cinema WS backend",
     },
     components: {
       securitySchemes: {
         bearerAuth: {
           type: "http",
           scheme: "bearer",
-          bearerFormat: "JWT", // optional, but nice for clarity
+          bearerFormat: "JWT",
         },
       },
     },
@@ -24,7 +24,7 @@ const options = {
       },
     ],
   },
-  apis: ["./controllers/*.js"],
+  apis: ["./routes/*.js"],
 };
 
 const swaggerSpec = swaggerJSDoc(options);

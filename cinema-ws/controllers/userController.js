@@ -1,5 +1,5 @@
 // controllers/userController.js
-const userService = require('../services/userService');
+const userService = require("../services/userService");
 
 const getAllUsers = async (req, res) => {
   try {
@@ -10,10 +10,40 @@ const getAllUsers = async (req, res) => {
   }
 };
 
+const getUserById = async (req, res) => {
+  try {
+    const user = await userService.getUserById(req.params.id);
+    if (!user) return res.status(404).json({ message: "User not found" });
+    res.json(user);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
 const createUser = async (req, res) => {
   try {
-    const newUser = await userService.createUser(req.body);
+    const { permissions, password, ...userData } = req.body;
+    const newUser = await userService.createUser(
+      userData,
+      password,
+      permissions || []
+    );
     res.status(201).json(newUser);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+};
+
+const updateUser = async (req, res) => {
+  try {
+    const { permissions, newPassword, ...updateData } = req.body;
+    const updatedUser = await userService.updateUser(
+      req.params.id,
+      updateData,
+      newPassword,
+      permissions
+    );
+    res.json(updatedUser);
   } catch (err) {
     res.status(400).json({ message: err.message });
   }
@@ -22,10 +52,16 @@ const createUser = async (req, res) => {
 const deleteUser = async (req, res) => {
   try {
     await userService.deleteUser(req.params.id);
-    res.json({ message: 'User deleted' });
+    res.json({ message: "User deleted" });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 };
 
-module.exports = { getAllUsers, createUser, deleteUser };
+module.exports = {
+  getAllUsers,
+  getUserById,
+  createUser,
+  updateUser,
+  deleteUser,
+};

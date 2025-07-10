@@ -8,4 +8,6 @@ module.exports = {
     process.env.APP_ENV == "production"
       ? process.env.MONGO_URI
       : process.env.MONGO_URI_LOCAL,
+  subsWsApiKey: process.env.SUBS_WS_API_KEY,
+  subsWsUrl: process.env.APP_ENV == "production" ? process.env.SUBS_WS_URL_PROD : process.env.SUBS_WS_URL_LOCAL,
 };

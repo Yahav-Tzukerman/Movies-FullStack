@@ -1,23 +1,25 @@
 // services/authService.js
-const userService = require('./userService');
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
+const userService = require("./userService");
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 
 const login = async (userName, password) => {
   const user = await userService.findUserByUserName(userName);
   if (!user) {
-    throw new Error('Invalid username or password');
+    console.error(`Login failed: User ${userName} not found`);
+    throw new Error("Invalid username or password");
   }
 
   const isMatch = await bcrypt.compare(password, user.password);
   if (!isMatch) {
-    throw new Error('Invalid username or password');
+    console.error(`Login failed: Incorrect password for user ${userName}`);
+    throw new Error("Invalid username or password");
   }
 
   const token = jwt.sign(
-    { id: user._id, userName: user.userName },
+    { id: user.userId, userName: user.userName },
     process.env.JWT_SECRET,
-    { expiresIn: '1h' }
+    { expiresIn: "1h" }
   );
 
   return token;

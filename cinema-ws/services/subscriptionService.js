@@ -1,25 +1,34 @@
 // services/subscriptionService.js
-const subscriptionRepository = require('../repositories/subscriptionRepository');
+const subscriptionRepository = require("../repositories/subscriptionRepository");
 
 const getAllSubscriptions = async () => {
-  return await subscriptionRepository.getAllSubscriptions();
+  const response = await subscriptionRepository.getAllSubscriptions();
+  return response.data;
 };
 
 const createSubscription = async (subscriptionData) => {
-  return await subscriptionRepository.createSubscription(subscriptionData);
+  const response = await subscriptionRepository.createSubscription(
+    subscriptionData
+  );
+  return response.data;
 };
 
 const addMovieToSubscription = async (subscriptionId, movieEntry) => {
-  return await subscriptionRepository.addMovieToSubscription(subscriptionId, movieEntry);
+  const response = await subscriptionRepository.addMovieToSubscription(
+    subscriptionId,
+    movieEntry
+  );
+  return response.data;
 };
 
 const deleteSubscription = async (id) => {
-  return await subscriptionRepository.deleteSubscription(id);
+  const response = await subscriptionRepository.deleteSubscription(id);
+  return response.data;
 };
 
 module.exports = {
   getAllSubscriptions,
   createSubscription,
   addMovieToSubscription,
-  deleteSubscription
+  deleteSubscription,
 };

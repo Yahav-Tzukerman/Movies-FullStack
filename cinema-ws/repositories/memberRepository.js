@@ -1,26 +1,44 @@
 // repositories/memberRepository.js
-const Member = require('../models/memberModel');
+const axios = require("axios");
+const config = require("../config/config");
+
+const baseUrl = config.subsWsUrl + "/members";
 
 const getAllMembers = async () => {
-  return await Member.find();
+  return await axios.get(baseUrl, {
+    headers: {
+      "x-api-key": config.subsWsApiKey,
+    },
+  });
 };
 
 const createMember = async (memberData) => {
-  const member = new Member(memberData);
-  return await member.save();
+  return await axios.post(baseUrl, memberData, {
+    headers: {
+      "x-api-key": config.subsWsApiKey,
+    },
+  });
 };
 
 const updateMember = async (id, updateData) => {
-  return await Member.findByIdAndUpdate(id, updateData, { new: true });
+  return await axios.put(`${baseUrl}/${id}`, updateData, {
+    headers: {
+      "x-api-key": config.subsWsApiKey,
+    },
+  });
 };
 
 const deleteMember = async (id) => {
-  return await Member.findByIdAndDelete(id);
+  return await axios.delete(`${baseUrl}/${id}`, {
+    headers: {
+      "x-api-key": config.subsWsApiKey,
+    },
+  });
 };
 
 module.exports = {
   getAllMembers,
   createMember,
   updateMember,
-  deleteMember
+  deleteMember,
 };

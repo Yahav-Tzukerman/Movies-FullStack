@@ -1,0 +1,34 @@
+[
+  {
+    "id": "3e8af932-5fe3-421c-ba34-c8602d3ddcab",
+    "permissions": [
+      "View Subscriptions",
+      "Create Subscriptions",
+      "Delete Subscriptions",
+      "Update Subscription",
+      "View Movies",
+      "Create Movies",
+      "Delete Movies",
+      "Update Movie",
+      "View Users",
+      "Create Users",
+      "Update Users",
+      "Delete Users"
+    ]
+  },
+  {
+    "id": "30edc078-46dc-41cc-8869-bf732075fbf2",
+    "permissions": [
+      "View Subscriptions"
+    ]
+  },
+  {
+    "id": "c21c2e8d-1292-481f-b5ad-9ea144de5104",
+    "permissions": [
+      "View Movies",
+      "Create Movies",
+      "Delete Movies",
+      "Update Movie"
+    ]
+  }
+]

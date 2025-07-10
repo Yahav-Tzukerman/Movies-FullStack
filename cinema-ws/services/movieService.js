@@ -1,25 +1,29 @@
 // services/movieService.js
-const movieRepository = require('../repositories/movieRepository');
+const movieRepository = require("../repositories/movieRepository");
 
 const getAllMovies = async () => {
-  return await movieRepository.getAllMovies();
+  const response = await movieRepository.getAllMovies();
+  return response.data;
 };
 
 const createMovie = async (movieData) => {
-  return await movieRepository.createMovie(movieData);
+  const response = await movieRepository.createMovie(movieData);
+  return response.data;
 };
 
 const updateMovie = async (id, updateData) => {
-  return await movieRepository.updateMovie(id, updateData);
+  const response = await movieRepository.updateMovie(id, updateData);
+  return response.data;
 };
 
 const deleteMovie = async (id) => {
-  return await movieRepository.deleteMovie(id);
+  const response = await movieRepository.deleteMovie(id);
+  return response.data;
 };
 
 module.exports = {
   getAllMovies,
   createMovie,
   updateMovie,
-  deleteMovie
+  deleteMovie,
 };

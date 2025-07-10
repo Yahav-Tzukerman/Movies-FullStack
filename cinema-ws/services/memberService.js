@@ -1,25 +1,29 @@
 // services/memberService.js
-const memberRepository = require('../repositories/memberRepository');
+const memberRepository = require("../repositories/memberRepository");
 
 const getAllMembers = async () => {
-  return await memberRepository.getAllMembers();
+  const response = await memberRepository.getAllMembers();
+  return response.data;
 };
 
 const createMember = async (memberData) => {
-  return await memberRepository.createMember(memberData);
+  const response = await memberRepository.createMember(memberData);
+  return response.data;
 };
 
 const updateMember = async (id, updateData) => {
-  return await memberRepository.updateMember(id, updateData);
+  const response = await memberRepository.updateMember(id, updateData);
+  return response.data;
 };
 
 const deleteMember = async (id) => {
-  return await memberRepository.deleteMember(id);
+  const response = await memberRepository.deleteMember(id);
+  return response.data;
 };
 
 module.exports = {
   getAllMembers,
   createMember,
   updateMember,
-  deleteMember
+  deleteMember,
 };
