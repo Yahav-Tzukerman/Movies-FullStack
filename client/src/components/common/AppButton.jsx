@@ -1,5 +1,5 @@
 import React from "react";
-import { Button as BootstrapButton } from "react-bootstrap";
+import Button from "@mui/material/Button";
 import { useSelector } from "react-redux";
 import appTheme from "../../styles/theme";
 
@@ -33,29 +33,34 @@ const AppButton = ({ label, onClick, disabled, variant = "primary", size }) => {
       ? theme.colors.successHover
       : theme.colors.textMuted;
 
-  const btnSizeClass = size === "sm" ? "btn-sm" : "";
+  const btnSize =
+    size === "sm"
+      ? { padding: "0.25rem 0.5rem", fontSize: "0.875rem" }
+      : { padding: theme.button.padding, fontSize: "1rem" };
 
   return (
-    <BootstrapButton
+    <Button
       onClick={onClick}
-      onMouseEnter={(e) => (e.target.style.backgroundColor = hoverColor)}
-      onMouseLeave={(e) => (e.target.style.backgroundColor = backgroundColor)}
       disabled={disabled}
-      style={{
+      sx={{
         color: theme.colors.buttonText,
         backgroundColor: backgroundColor,
         borderColor:
           variant === "primary" ? theme.colors.primary : theme.colors.textMuted,
         borderRadius: theme.button.borderRadius,
-        padding: size === "sm" ? "0.25rem 0.5rem" : theme.button.padding,
-        fontSize: size === "sm" ? "0.875rem" : "1rem",
         fontFamily: theme.fontFamily,
         cursor: disabled ? "not-allowed" : "pointer",
+        boxShadow: "none",
+        ...btnSize,
+        "&:hover": {
+          backgroundColor: hoverColor,
+          boxShadow: "none",
+        },
       }}
-      className={`shadow-none ${btnSizeClass}`}
+      variant="contained"
     >
       {label}
-    </BootstrapButton>
+    </Button>
   );
 };
 

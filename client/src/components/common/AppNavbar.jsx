@@ -6,9 +6,7 @@ import AppThemeToggle from "./AppThemeToggle";
 import appTheme from "../../styles/theme";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowRightFromBracket } from "@fortawesome/free-solid-svg-icons";
-import { auth } from "../../firebase/firebase";
 import { useState, useEffect } from "react";
-import usersService from "../../services/users.service";
 
 const AppNavbar = ({ handleLogout }) => {
   const app = useSelector((state) => state.app);
@@ -18,19 +16,20 @@ const AppNavbar = ({ handleLogout }) => {
 
   useEffect(() => {
     const validateToken = async () => {
-      if (auth.currentUser) {
-        const token = await auth.currentUser.getIdToken(); // Validate token
-        const { data: roleFromFireBase } = await usersService.getUserRole(
-          auth.currentUser.uid
-        );
-        if (user?.token === token && user?.role === roleFromFireBase) {
-          setIsValid(true);
-        } else {
-          setIsValid(false);
-        }
-      } else {
-        setIsValid(false);
-      }
+      // if (auth.currentUser) {
+      //   const token = await auth.currentUser.getIdToken(); // Validate token
+      //   const { data: roleFromFireBase } = await usersService.getUserRole(
+      //     auth.currentUser.uid
+      //   );
+      //   if (user?.token === token && user?.role === roleFromFireBase) {
+      //     setIsValid(true);
+      //   } else {
+      //     setIsValid(false);
+      //   }
+      // } else {
+      //   setIsValid(false);
+      // }
+      setIsValid(true);
     };
 
     validateToken();

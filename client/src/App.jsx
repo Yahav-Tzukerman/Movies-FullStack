@@ -34,8 +34,8 @@ const App = () => {
         minHeight: "100vh",
       }}
     >
-      <AppNavbar handleLogout={handleLogout} />
-      <AppRouter />
+      {/* <AppNavbar handleLogout={handleLogout} /> */}
+      {/* <AppRouter /> */}
     </Container>
   );
 };

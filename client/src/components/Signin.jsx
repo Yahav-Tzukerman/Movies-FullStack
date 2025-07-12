@@ -8,10 +8,8 @@ import { Link } from "react-router-dom";
 import { validateUsername, validatePassword } from "../utils/regexValidations";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import UserService from "../services/users.service";
 import { setLoading, setUser } from "../redux/authSlice";
 import appTheme from "../styles/theme";
-import { auth } from "../firebase/firebase";
 import AppErrorPopUp from "../components/common/AppErrorPopApp";
 
 const SignInComp = () => {
@@ -33,7 +31,7 @@ const SignInComp = () => {
     e.preventDefault();
     dispatch(setLoading(true)); // Start loading state
     try {
-      const response = await UserService.login(username, password);
+      // const response = await UserService.login(username, password);
 
       if (response.error) {
         setPopup({
@@ -46,7 +44,7 @@ const SignInComp = () => {
         return;
       }
 
-      const token = await auth.currentUser.getIdToken(); // Get Firebase token
+      const token = null;
 
       const userData = {
         ...response.data,
