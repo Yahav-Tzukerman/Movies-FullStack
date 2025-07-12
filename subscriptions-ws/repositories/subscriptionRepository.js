@@ -24,9 +24,21 @@ const deleteSubscription = async (id) => {
   return await Subscription.findByIdAndDelete(id);
 };
 
+const getSubscriptionById = async (id) => {
+  return await Subscription.findById(id)
+    .populate("memberId")
+    .populate("movies.movieId");
+};
+
+const getSubscriptionByMemberId = async (memberId) => {
+  return await Subscription.findOne({ memberId });
+};
+
 module.exports = {
   getAllSubscriptions,
   createSubscription,
   addMovieToSubscription,
   deleteSubscription,
+  getSubscriptionById,
+  getSubscriptionByMemberId,
 };

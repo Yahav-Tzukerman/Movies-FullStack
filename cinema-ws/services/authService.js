@@ -1,19 +1,26 @@
 // services/authService.js
+const {
+  validateUserName,
+  validatePassword,
+} = require("../validations/userValidation");
 const userService = require("./userService");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const AppError = require("../exceptions/AppError");
 
 const login = async (userName, password) => {
+  const errors = [...validateUserName(userName), ...validatePassword(password)];
+  if (errors.length) throw new AppError("Validation error", 400, errors);
   const user = await userService.findUserByUserName(userName);
   if (!user) {
     console.error(`Login failed: User ${userName} not found`);
-    throw new Error("Invalid username or password");
+    throw new AppError("Invalid username or password", 401);
   }
 
   const isMatch = await bcrypt.compare(password, user.password);
   if (!isMatch) {
     console.error(`Login failed: Incorrect password for user ${userName}`);
-    throw new Error("Invalid username or password");
+    throw new AppError("Invalid username or password", 401);
   }
 
   const token = jwt.sign(

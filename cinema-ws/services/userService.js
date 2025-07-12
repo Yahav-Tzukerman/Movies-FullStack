@@ -1,11 +1,15 @@
 // services/userService.js
+const {
+  validateUserData,
+  validatePassword,
+} = require("../validations/userValidation");
 const userJsonRepository = require("../repositories/userJsonRepository");
 const userDBRepository = require("../repositories/userDBRepository");
 const permissionsService = require("../services/permissionsService");
 const bcrypt = require("bcrypt");
 const uuid = require("uuid");
+const AppError = require("../exceptions/AppError");
 
-// שליפת כל המשתמשים מה-json (להצגה)
 const getAllUsers = async () => {
   return await userJsonRepository.getAllUsers();
 };
@@ -13,6 +17,8 @@ const getAllUsers = async () => {
 const getUserById = async (id) => {
   const userJson = await userJsonRepository.findUserById(id);
   const userDb = await userDBRepository.findUserByUserId(id);
+  if (!userJson) throw new AppError("User not found in users.json", 404);
+  if (!userDb) throw new AppError("User not found in DB", 404);
   return {
     ...userJson,
     userName: userDb?.userName,
@@ -22,13 +28,20 @@ const getUserById = async (id) => {
 };
 
 const createUser = async (userData, password, permissions = []) => {
+  const errors = validateUserFull({
+    ...userData,
+    password,
+    permissions,
+  });
+  if (errors.length) throw new AppError("Validation error", 400, errors);
+
   const id = userData.id || uuid.v4();
 
   if (await userJsonRepository.findUserById(id))
-    throw new Error("User already exists in users.json");
+    throw new AppError("User already exists in users.json", 400);
 
   if (await userDBRepository.findUserByUserName(userData.userName))
-    throw new Error("User already exists in DB");
+    throw new AppError("User already exists in DB", 400);
 
   const now = new Date().toISOString();
   const jsonUser = {
@@ -63,12 +76,18 @@ const createUser = async (userData, password, permissions = []) => {
 
 // createAccount תמיד לפי userId
 const createAccount = async (userName, password) => {
+  if (!userName || !password) {
+    throw new AppError("Username and password are required.", 400);
+  }
+  const errors = validatePassword(password);
+  if (errors.length) throw new AppError(errors.join(", "), 400);
+
   const dbUser = await userDBRepository.findUserByUserName(userName);
-  if (!dbUser) throw new Error("User missing in DB. Contact admin.");
+  if (!dbUser) throw new AppError("User missing in DB. Contact admin.", 404);
   const user = await userJsonRepository.findUserById(dbUser.userId);
-  if (!user) throw new Error("User not found. Contact admin.");
+  if (!user) throw new AppError("User not found. Contact admin.", 404);
   if (dbUser.password && dbUser.password !== "placeholder")
-    throw new Error("Account already created.");
+    throw new AppError("Account already created.", 400);
 
   const hashed = await bcrypt.hash(password, 10);
   dbUser.password = hashed;
@@ -78,6 +97,16 @@ const createAccount = async (userName, password) => {
 };
 
 const updateUser = async (id, updateData, newPassword, newPermissions) => {
+  const userJson = await userJsonRepository.findUserById(id);
+  if (!userJson) throw new AppError("User not found in users.json", 404);
+
+  const errors = validateUserFull({
+    ...updateData,
+    password: newPassword,
+    permissions: newPermissions,
+  });
+  if (errors.length) throw new AppError("Validation error", 400, errors);
+
   await userJsonRepository.updateUser(id, updateData);
 
   if (newPassword) {
@@ -96,6 +125,8 @@ const updateUser = async (id, updateData, newPassword, newPermissions) => {
 };
 
 const deleteUser = async (id) => {
+  const userJson = await userJsonRepository.findUserById(id);
+  if (!userJson) throw new AppError("User not found in users.json", 404);
   await userJsonRepository.deleteUser(id);
   const dbUser = await userDBRepository.findUserByUserId(id);
   if (dbUser) await userDBRepository.deleteUserById(dbUser._id);

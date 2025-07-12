@@ -1,5 +1,5 @@
 // repositories/movieRepository.js
-const Movie = require('../models/movieModel');
+const Movie = require("../models/movieModel");
 
 const getAllMovies = async () => {
   return await Movie.find();
@@ -18,9 +18,19 @@ const deleteMovie = async (id) => {
   return await Movie.findByIdAndDelete(id);
 };
 
+const getMovieById = async (id) => {
+  return await Movie.findById(id);
+};
+
+const getMovieByName = async (name) => {
+  return await Movie.findOne({ name });
+};
+
 module.exports = {
   getAllMovies,
   createMovie,
   updateMovie,
-  deleteMovie
+  deleteMovie,
+  getMovieById,
+  getMovieByName,
 };

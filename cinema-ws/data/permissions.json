@@ -5,11 +5,11 @@
       "View Subscriptions",
       "Create Subscriptions",
       "Delete Subscriptions",
-      "Update Subscription",
+      "Update Subscriptions",
       "View Movies",
       "Create Movies",
       "Delete Movies",
-      "Update Movie",
+      "Update Movies",
       "View Users",
       "Create Users",
       "Update Users",
@@ -28,7 +28,7 @@
       "View Movies",
       "Create Movies",
       "Delete Movies",
-      "Update Movie"
+      "Update Movies"
     ]
   }
 ]

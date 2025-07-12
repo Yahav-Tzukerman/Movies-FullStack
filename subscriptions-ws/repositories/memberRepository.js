@@ -1,5 +1,5 @@
 // repositories/memberRepository.js
-const Member = require('../models/memberModel');
+const Member = require("../models/memberModel");
 
 const getAllMembers = async () => {
   return await Member.find();
@@ -18,9 +18,19 @@ const deleteMember = async (id) => {
   return await Member.findByIdAndDelete(id);
 };
 
+const getMemberById = async (id) => {
+  return await Member.findById(id);
+};
+
+const getMemberByEmail = async (email) => {
+  return await Member.findOne({ email });
+};
+
 module.exports = {
   getAllMembers,
   createMember,
   updateMember,
-  deleteMember
+  deleteMember,
+  getMemberById,
+  getMemberByEmail,
 };
