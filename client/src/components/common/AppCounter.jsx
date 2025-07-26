@@ -1,10 +1,9 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useSelector } from "react-redux";
-import { Overlay, Tooltip, Form } from "react-bootstrap";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPlus, faMinus } from "@fortawesome/free-solid-svg-icons";
+import { Tooltip, IconButton, TextField } from "@mui/material";
+import { Add, Remove } from "@mui/icons-material";
 import appTheme from "../../styles/theme";
-import AppButton from "../common/AppButton";
+import AppButton from "../common/AppButton"; // If you want to keep your custom button, otherwise use MUI's IconButton
 
 const AppCounter = ({
   counter = 0,
@@ -18,7 +17,6 @@ const AppCounter = ({
   const [showTooltip, setShowTooltip] = useState(false);
   const countRef = useRef(null);
 
-  // Update internal state whenever 'counter' prop changes
   useEffect(() => {
     setCount(counter);
   }, [counter]);
@@ -42,7 +40,7 @@ const AppCounter = ({
     onChange && onChange(newValue);
   };
 
-  // Inline media query to adjust the width on small screens
+  // Responsive styles for MUI TextField
   const responsiveCountStyle = {
     backgroundColor: theme.colors.inputBackground,
     border: "none",
@@ -53,45 +51,63 @@ const AppCounter = ({
     fontSize: "1rem",
   };
 
-  // For extra small screens, let's shrink the width and font size
-  const mediaQuery = `
-    @media (max-width: 576px) {
-      .responsive-counter-input {
-        width: 35px !important;
-        font-size: 0.875rem !important;
-      }
-    }
-  `;
-
   return (
-    <div className="d-inline-block" ref={countRef}>
-      {/* Injecting a <style> tag for the small screen adjustments */}
-      <style>{mediaQuery}</style>
-
-      <div className="d-inline-flex align-items-center justify-content-center my-2 mx-1">
-        <AppButton
-          onClick={handleDecrement}
-          label={<FontAwesomeIcon icon={faMinus} />}
-          variant="primary"
-          size="sm"
-        />
-        <Form.Control
-          readOnly
+    <div ref={countRef} style={{ display: "inline-block" }}>
+      <div
+        style={{
+          display: "inline-flex",
+          alignItems: "center",
+          justifyContent: "center",
+          margin: "0.5rem 0.25rem",
+        }}
+      >
+        <Tooltip
+          title={count === 0 ? instructions : ""}
+          open={showTooltip}
+          disableFocusListener
+          disableHoverListener
+          disableTouchListener
+          placement="bottom"
+        >
+          <span>
+            <IconButton
+              onClick={handleDecrement}
+              color="primary"
+              size="small"
+              disabled={count === 0}
+              sx={{ marginRight: 1 }}
+            >
+              <Remove />
+            </IconButton>
+          </span>
+        </Tooltip>
+        <TextField
           value={count}
-          style={responsiveCountStyle}
-          className="shadow-none responsive-counter-input mx-1"
+          inputProps={{
+            readOnly: true,
+            style: responsiveCountStyle,
+          }}
+          variant="outlined"
+          size="small"
+          sx={{
+            width: { xs: 35, sm: 50 },
+            fontSize: { xs: "0.875rem", sm: "1rem" },
+            mx: 1,
+            "& .MuiInputBase-input": {
+              textAlign: "center",
+              padding: "6px 0",
+            },
+          }}
         />
-        <AppButton
+        <IconButton
           onClick={handleIncrement}
-          label={<FontAwesomeIcon icon={faPlus} />}
-          variant="primary"
-          size="sm"
-        />
+          color="primary"
+          size="small"
+          sx={{ marginLeft: 1 }}
+        >
+          <Add />
+        </IconButton>
       </div>
-
-      <Overlay target={countRef.current} show={showTooltip} placement="bottom">
-        {(overlayProps) => <Tooltip {...overlayProps}>{instructions}</Tooltip>}
-      </Overlay>
     </div>
   );
 };

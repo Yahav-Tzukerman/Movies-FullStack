@@ -1,5 +1,5 @@
 import React, { useState, useRef } from "react";
-import { Form, Overlay, Tooltip } from "react-bootstrap";
+import { TextField, Tooltip } from "@mui/material";
 import { useSelector } from "react-redux";
 import appTheme from "../../styles/theme";
 
@@ -30,48 +30,46 @@ const AppTextArea = ({
 
   return (
     <>
-      <Form.Group className="mb-3">
-        <Form.Control
-          as="textarea"
+      <Tooltip
+        title={instructions || ""}
+        open={!!(showTooltip && error && instructions)}
+        placement="left"
+        arrow
+      >
+        <TextField
+          multiline
           rows={rows}
           placeholder={placeholder}
           value={value}
           onChange={onChange}
-          ref={textAreaRef}
+          inputRef={textAreaRef}
           onFocus={handleFocus}
           onBlur={handleBlur}
-          style={{
+          error={!!error}
+          helperText={error ? errorMessage : ""}
+          variant="outlined"
+          fullWidth
+          sx={{
             backgroundColor: theme.colors.inputBackground,
             color: theme.colors.textLight,
-            borderColor: error
-              ? theme.colors.error
-              : selected
-              ? theme.colors.inputBorderSelected
-              : theme.colors.inputBorder,
-            borderRadius: theme.input.borderRadius,
-            fontFamily: theme.fontFamily,
+            "& .MuiOutlinedInput-root": {
+              borderRadius: theme.input.borderRadius,
+              fontFamily: theme.fontFamily,
+              "& fieldset": {
+                borderColor: error
+                  ? theme.colors.error
+                  : selected
+                  ? theme.colors.inputBorderSelected
+                  : theme.colors.inputBorder,
+              },
+            },
+            "& .MuiFormHelperText-root": {
+              margin: "5px 0 0 0",
+              color: theme.colors.error,
+            },
           }}
-          className="shadow-none"
         />
-        {error && (
-          <Form.Text style={{ margin: "5px", color: theme.colors.error }}>
-            {errorMessage}
-          </Form.Text>
-        )}
-      </Form.Group>
-      {instructions && (
-        <Overlay
-          target={textAreaRef.current}
-          show={showTooltip && error}
-          placement="left"
-        >
-          {(overlayProps) => (
-            <Tooltip {...overlayProps} bsPrefix="tooltip">
-              {instructions}
-            </Tooltip>
-          )}
-        </Overlay>
-      )}
+      </Tooltip>
     </>
   );
 };

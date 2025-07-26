@@ -1,141 +1,111 @@
-import React from "react";
-import { Navbar, Nav, Container, Button } from "react-bootstrap";
+import React, { useState, useEffect } from "react";
+import {
+  AppBar,
+  Toolbar,
+  IconButton,
+  Typography,
+  Button,
+  Box,
+} from "@mui/material";
 import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import AppThemeToggle from "./AppThemeToggle";
 import appTheme from "../../styles/theme";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowRightFromBracket } from "@fortawesome/free-solid-svg-icons";
-import { useState, useEffect } from "react";
 
 const AppNavbar = ({ handleLogout }) => {
   const app = useSelector((state) => state.app);
   const theme = app.darkMode ? appTheme.dark : appTheme.light;
   const { user, isAuthenticated, loading } = useSelector((state) => state.auth);
-  const [isValid, setIsValid] = useState(null);
-
-  useEffect(() => {
-    const validateToken = async () => {
-      // if (auth.currentUser) {
-      //   const token = await auth.currentUser.getIdToken(); // Validate token
-      //   const { data: roleFromFireBase } = await usersService.getUserRole(
-      //     auth.currentUser.uid
-      //   );
-      //   if (user?.token === token && user?.role === roleFromFireBase) {
-      //     setIsValid(true);
-      //   } else {
-      //     setIsValid(false);
-      //   }
-      // } else {
-      //   setIsValid(false);
-      // }
-      setIsValid(true);
-    };
-
-    validateToken();
-  }, [user, loading]);
 
   return (
-    <Navbar
-      bg={theme.colors.gradientBackground}
-      variant={app.darkMode ? "dark" : "light"}
-      expand="lg"
-      style={{
+    <AppBar
+      position="static"
+      sx={{
         width: "100%",
         background: theme.colors.gradientBackground,
+        color: theme.colors.textLight,
       }}
     >
-      <Container fluid>
-        <Navbar.Toggle aria-controls="basic-navbar-nav" />
-        <Navbar.Brand href="/" className="d-none d-lg-block">
-          Next Generation E-Commerce {isValid}
-        </Navbar.Brand>
-        <Navbar.Collapse
-          id="basic-navbar-nav"
-          className="justify-content-center"
-          style={{ width: "100%", marginRight: "13rem" }}
-        >
-          {user?.role === "admin" && (
-            <Nav className="mx-auto" style={{ gap: "0.5rem" }}>
-              <Nav.Link
-                as={Link}
-                to="/admin/categories"
-                style={{ color: "grey", textDecoration: "none" }}
+      <Toolbar sx={{ justifyContent: "space-between" }}>
+        <Box sx={{ display: "flex", alignItems: "center" }}>
+          <Typography
+            variant="h6"
+            component={Link}
+            to="/"
+            sx={{
+              textDecoration: "none",
+              color: theme.colors.textLight,
+              display: { xs: "none", lg: "block" },
+              mr: 2,
+            }}
+          >
+            Cinema Subscriber
+            {isAuthenticated && (
+              <Typography
+                variant="h6"
+                sx={{
+                  textDecoration: "none",
+                  color: theme.colors.textLight,
+                }}
               >
-                Categories
-              </Nav.Link>
-              <Nav.Link
-                as={Link}
-                to="/admin/products"
-                style={{ color: "grey", textDecoration: "none" }}
+                Hello, {user?.firstName + " " + user?.lastName}!
+              </Typography>
+            )}
+          </Typography>
+        </Box>
+        <Box sx={{ flexGrow: 1, display: "flex", justifyContent: "center" }}>
+          {isAuthenticated && (
+            <>
+              <Button
+                component={Link}
+                to="/movies"
+                sx={{ color: theme.colors.textLight, textTransform: "none" }}
               >
-                Products
-              </Nav.Link>
-              <Nav.Link
-                as={Link}
-                to="/admin/customers"
-                style={{ color: "grey", textDecoration: "none" }}
+                Movies
+              </Button>
+              <Button
+                component={Link}
+                to="/subscriptions"
+                sx={{ color: theme.colors.textLight, textTransform: "none" }}
               >
-                Customers
-              </Nav.Link>
-              <Nav.Link
-                as={Link}
-                to="/admin/statistics"
-                style={{ color: "grey", textDecoration: "none" }}
-              >
-                Statistics
-              </Nav.Link>
-            </Nav>
-          )}
-          {user?.role === "customer" && (
-            <Nav className="mx-auto" style={{ gap: "0.5rem" }}>
-              <Nav.Link
-                as={Link}
-                to="/customer/products"
-                style={{ color: "grey", textDecoration: "none" }}
-              >
-                Products
-              </Nav.Link>
-              <Nav.Link
-                as={Link}
-                to="/customer/orders"
-                style={{ color: "grey", textDecoration: "none" }}
-              >
-                My Orders
-              </Nav.Link>
-              <Nav.Link
-                as={Link}
-                to="/customer/account"
-                style={{ color: "grey", textDecoration: "none" }}
-              >
-                My Account
-              </Nav.Link>
-              <Nav.Link
+                Subscriptions
+              </Button>
+              {user?.permissions.includes("View Users") && (
+                <>
+                  <Button
+                    component={Link}
+                    to="/users"
+                    sx={{
+                      color: theme.colors.textLight,
+                      textTransform: "none",
+                    }}
+                  >
+                    Users Management
+                  </Button>
+                </>
+              )}
+              <Button
                 onClick={handleLogout}
-                style={{ color: "grey", textDecoration: "none" }}
+                sx={{ color: theme.colors.textLight, textTransform: "none" }}
               >
                 Logout
-              </Nav.Link>
-            </Nav>
+              </Button>
+              <IconButton
+                onClick={handleLogout}
+                sx={{ color: theme.colors.textLight }}
+              >
+                <FontAwesomeIcon icon={faArrowRightFromBracket} />
+              </IconButton>
+            </>
           )}
-        </Navbar.Collapse>
-        {isAuthenticated && (
-          <FontAwesomeIcon
-            onClick={handleLogout}
-            icon={faArrowRightFromBracket}
-            style={{
-              fontSize: "1rem",
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              color: theme.colors.text,
-            }}
-          />
-        )}
-        <AppThemeToggle />
-      </Container>
-    </Navbar>
+        </Box>
+        <Box sx={{ display: "flex", alignItems: "center" }}>
+          <AppThemeToggle />
+        </Box>
+      </Toolbar>
+    </AppBar>
   );
 };
 

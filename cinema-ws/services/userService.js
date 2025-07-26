@@ -2,6 +2,7 @@
 const {
   validateUserData,
   validatePassword,
+  validatePermissions,
 } = require("../validations/userValidation");
 const userJsonRepository = require("../repositories/userJsonRepository");
 const userDBRepository = require("../repositories/userDBRepository");
@@ -11,7 +12,21 @@ const uuid = require("uuid");
 const AppError = require("../exceptions/AppError");
 
 const getAllUsers = async () => {
-  return await userJsonRepository.getAllUsers();
+  const usersJson = await userJsonRepository.getAllUsers();
+  const usersDb = await userDBRepository.getAllUsers();
+  return Promise.all(
+    usersJson.map(async (user) => {
+      const dbUser = usersDb.find((db) => db.userId === user.id);
+      const permissions = await permissionsService.getPermissionsForUser(
+        user.id
+      );
+      return {
+        ...user,
+        userName: dbUser?.userName,
+        permissions,
+      };
+    })
+  );
 };
 
 const getUserById = async (id) => {
@@ -28,12 +43,11 @@ const getUserById = async (id) => {
 };
 
 const createUser = async (userData, password, permissions = []) => {
-  const errors = validateUserFull({
-    ...userData,
-    password,
-    permissions,
-  });
-  if (errors.length) throw new AppError("Validation error", 400, errors);
+  const errors = validateUserData(userData);
+  errors.push(...validatePermissions(permissions));
+  console.log(errors);
+
+  if (errors.length) throw new AppError(errors, 400);
 
   const id = userData.id || uuid.v4();
 
@@ -86,7 +100,7 @@ const createAccount = async (userName, password) => {
   if (!dbUser) throw new AppError("User missing in DB. Contact admin.", 404);
   const user = await userJsonRepository.findUserById(dbUser.userId);
   if (!user) throw new AppError("User not found. Contact admin.", 404);
-  if (dbUser.password && dbUser.password !== "placeholder")
+  if (dbUser.password && dbUser.password !== "")
     throw new AppError("Account already created.", 400);
 
   const hashed = await bcrypt.hash(password, 10);

@@ -1,6 +1,15 @@
-import React, { useState, useRef } from "react";
-import { Form } from "react-bootstrap";
+import React, { useState } from "react";
 import { useSelector } from "react-redux";
+import {
+  MenuItem,
+  FormControl,
+  Box,
+  Chip,
+  Select,
+  InputLabel,
+  OutlinedInput,
+  FormHelperText,
+} from "@mui/material";
 import appTheme from "../../styles/theme";
 
 const AppComboBox = ({
@@ -9,61 +18,114 @@ const AppComboBox = ({
   onChange,
   options = [],
   defaultOption,
+  multiple = false,
 }) => {
   const app = useSelector((state) => state.app);
   const theme = app.darkMode ? appTheme.dark : appTheme.light;
   const [selected, setSelected] = useState(false);
-  const selectRef = useRef(null);
 
-  const handleFocus = () => {
-    setSelected(true);
-  };
-
-  const handleBlur = () => {
-    setSelected(false);
-  };
+  const handleFocus = () => setSelected(true);
+  const handleBlur = () => setSelected(false);
 
   return (
-    <>
-      <Form.Group className="mb-3">
-        <Form.Select
-          name={name}
-          value={value}
-          onChange={onChange}
-          ref={selectRef}
-          onFocus={handleFocus}
-          onBlur={handleBlur}
-          style={{
-            backgroundColor: theme.colors.inputBackground,
-            color: theme.colors.textLight,
-            borderColor: selected
-              ? theme.colors.inputBorderSelected
-              : theme.colors.inputBorder,
-            borderRadius: theme.input.borderRadius,
-            height: theme.input.height,
-            fontFamily: theme.fontFamily,
-            appearance: "none",
-            WebkitAppearance: "none",
-            MozAppearance: "none",
-            paddingRight: "30px",
-            backgroundImage: `url("data:image/svg+xml;charset=UTF-8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path fill='%23${
-              app.darkMode ? "ffffff" : "000000"
-            }' d='M7 10l5 5 5-5z'/></svg>")`,
-            backgroundPosition: "right 10px center",
-            backgroundRepeat: "no-repeat",
-            backgroundSize: "16px 16px",
-          }}
-          className="shadow-none"
-        >
-          {defaultOption && <option value="">{defaultOption}</option>}
-          {options.map((option, index) => (
-            <option key={index} value={option}>
+    <FormControl
+      fullWidth
+      variant="outlined"
+      sx={{
+        mb: 3,
+        "& .MuiOutlinedInput-root": {
+          backgroundColor: theme.colors.inputBackground,
+          color: theme.colors.textLight,
+          borderColor: selected
+            ? theme.colors.inputBorderSelected
+            : theme.colors.inputBorder,
+          borderRadius: theme.input.borderRadius,
+          fontFamily: theme.fontFamily,
+        },
+        "& .MuiInputLabel-root": {
+          color: theme.colors.textLight,
+          fontFamily: theme.fontFamily,
+        },
+      }}
+    >
+      <InputLabel>{name}</InputLabel>
+      <Select
+        multiple={multiple}
+        name={name}
+        value={value}
+        onChange={onChange}
+        onFocus={handleFocus}
+        onBlur={handleBlur}
+        label={name}
+        input={<OutlinedInput label={name} />}
+        renderValue={(selected) => (
+          <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
+            {selected.map((value) => (
+              <Chip
+                key={value}
+                label={value}
+                sx={{
+                  backgroundColor: theme.colors.innerCardBackground,
+                  color: theme.colors.textLight,
+                  borderColor: theme.colors.inputBorder,
+                  borderRadius: theme.input.borderRadius,
+                }}
+              />
+            ))}
+          </Box>
+        )}
+        sx={{
+          backgroundColor: theme.colors.inputBackground,
+          color: theme.colors.textLight,
+          borderColor: selected
+            ? theme.colors.inputBorderSelected
+            : theme.colors.inputBorder,
+          borderRadius: theme.input.borderRadius,
+          fontFamily: theme.fontFamily,
+        }}
+        MenuProps={{
+          PaperProps: {
+            sx: {
+              backgroundColor: theme.colors.inputBackground,
+              color: theme.colors.textLight,
+              fontFamily: theme.fontFamily,
+            },
+          },
+        }}
+      >
+        {defaultOption && <MenuItem value="">{defaultOption}</MenuItem>}
+        {options.map((option, index) => {
+          const isSelected = multiple
+            ? value.includes(option)
+            : value === option;
+          return (
+            <MenuItem
+              key={index}
+              value={option}
+              sx={
+                isSelected
+                  ? {
+                      backgroundColor:
+                        theme.colors.innerCardBackground + " !important",
+                      color: theme.colors.textLight,
+                      fontFamily: theme.fontFamily,
+                      "&:hover": {
+                        backgroundColor:
+                          theme.colors.innerCardBackground + " !important",
+                      },
+                    }
+                  : {}
+              }
+            >
               {option}
-            </option>
-          ))}
-        </Form.Select>
-      </Form.Group>
-    </>
+            </MenuItem>
+          );
+        })}
+      </Select>
+      <FormHelperText sx={{ color: theme.colors.textLight }}>
+        Hold CTRL (Windows) or CMD (Mac) to select multiple
+      </FormHelperText>
+    </FormControl>
   );
 };
 

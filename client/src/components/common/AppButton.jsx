@@ -3,7 +3,14 @@ import Button from "@mui/material/Button";
 import { useSelector } from "react-redux";
 import appTheme from "../../styles/theme";
 
-const AppButton = ({ label, onClick, disabled, variant = "primary", size }) => {
+const AppButton = ({
+  label,
+  onClick,
+  disabled,
+  variant = "primary",
+  size,
+  fullWidth = false,
+}) => {
   const app = useSelector((state) => state.app);
   const theme = app.darkMode ? appTheme.dark : appTheme.light;
 
@@ -18,6 +25,8 @@ const AppButton = ({ label, onClick, disabled, variant = "primary", size }) => {
       ? theme.colors.update
       : variant === "success"
       ? theme.colors.success
+      : variant === "secondary"
+      ? theme.colors.secondary
       : theme.colors.textMuted;
 
   const hoverColor =
@@ -31,6 +40,8 @@ const AppButton = ({ label, onClick, disabled, variant = "primary", size }) => {
       ? theme.colors.updateHover
       : variant === "success"
       ? theme.colors.successHover
+      : variant === "secondary"
+      ? theme.colors.secondaryHover
       : theme.colors.textMuted;
 
   const btnSize =
@@ -58,6 +69,7 @@ const AppButton = ({ label, onClick, disabled, variant = "primary", size }) => {
         },
       }}
       variant="contained"
+      fullWidth={fullWidth}
     >
       {label}
     </Button>

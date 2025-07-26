@@ -1,14 +1,21 @@
-import React, { useState } from "react";
-import { Container } from "react-bootstrap";
+import React from "react";
+import { Container, Box } from "@mui/material";
 import SignupComp from "../components/Signup";
 
 const SignupPage = () => {
   return (
     <Container
-      className="d-flex justify-content-center align-items-center"
-      style={{ minHeight: "100vh" }}
+      maxWidth="sm"
+      sx={{
+        minHeight: "100vh",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+      }}
     >
-      <SignupComp />
+      <Box width="100%">
+        <SignupComp />
+      </Box>
     </Container>
   );
 };

@@ -1,7 +1,8 @@
 // AppErrorPopApp.jsx
 import React from "react";
-import { Toast } from "react-bootstrap";
 import { useSelector } from "react-redux";
+import Snackbar from "@mui/material/Snackbar";
+import MuiAlert from "@mui/material/Alert";
 import appTheme from "../../styles/theme";
 
 const AppErrorPopApp = ({
@@ -20,54 +21,28 @@ const AppErrorPopApp = ({
       : theme.colors.success;
 
   return (
-    <div
-      style={{
-        position: "fixed",
-        top: "20%",
-        left: "50%",
-        transform: "translate(-50%, -50%)",
-        zIndex: 1050, // Ensure it's above other elements
-      }}
+    <Snackbar
+      open={show}
+      autoHideDuration={4000}
+      onClose={handleClose}
+      anchorOrigin={{ vertical: "top", horizontal: "center" }}
     >
-      <Toast
-        show={show}
+      <MuiAlert
+        elevation={6}
+        variant="filled"
         onClose={handleClose}
-        delay={4000}
-        autohide
-        style={{
+        severity={variant}
+        sx={{
           backgroundColor: variantColor,
           color: "white",
           minWidth: "300px",
+          fontWeight: "bold",
+          fontSize: "1rem",
         }}
       >
-        <Toast.Header
-          style={{
-            backgroundColor: variantColor,
-            color: "white",
-          }}
-        >
-          <strong className="me-auto">
-            {variant === "error"
-              ? "Error"
-              : variant === "warning"
-              ? "Warning"
-              : "Success"}
-          </strong>
-          <small>just now</small>
-        </Toast.Header>
-        <Toast.Body>
-          <span
-            style={{
-              color: "white",
-              fontWeight: "bold",
-              fontSize: "1rem",
-            }}
-          >
-            {label}
-          </span>
-        </Toast.Body>
-      </Toast>
-    </div>
+        {label}
+      </MuiAlert>
+    </Snackbar>
   );
 };
 

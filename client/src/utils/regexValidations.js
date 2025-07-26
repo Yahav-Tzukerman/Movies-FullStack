@@ -4,9 +4,8 @@
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 // Regular expression for validating password
-// Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character
-const passwordRegex =
-  /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+// Password must be at least 6 characters long and contain at least one lowercase letter, and one number
+const passwordRegex = /^(?=.*[a-z])(?=.*\d)[A-Za-z\d]{6,}$/;
 
 // Regular expression for validating username
 // Username must be alphanumeric and between 3 to 16 characters long
@@ -51,4 +50,10 @@ const validateFiled = (field, value) => {
   }
 };
 
-export { validateEmail, validatePassword, validateUsername, validateName, validateFiled };
+export {
+  validateEmail,
+  validatePassword,
+  validateUsername,
+  validateName,
+  validateFiled,
+};

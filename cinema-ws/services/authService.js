@@ -4,6 +4,7 @@ const {
   validatePassword,
 } = require("../validations/userValidation");
 const userService = require("./userService");
+const permissionsService = require("./permissionsService");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const AppError = require("../exceptions/AppError");
@@ -23,13 +24,24 @@ const login = async (userName, password) => {
     throw new AppError("Invalid username or password", 401);
   }
 
+  const userJson = await userService.getUserById(user.userId);
+  const userPermissions = await permissionsService.getPermissionsForUser(
+    user.userId
+  );
+
   const token = jwt.sign(
     { id: user.userId, userName: user.userName },
     process.env.JWT_SECRET,
     { expiresIn: "1h" }
   );
 
-  return token;
+  return {
+    token,
+    userName: userJson.userName,
+    firstName: userJson.firstName,
+    lastName: userJson.lastName,
+    permissions: userPermissions,
+  };
 };
 
 module.exports = { login };

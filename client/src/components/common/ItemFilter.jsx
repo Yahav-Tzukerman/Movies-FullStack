@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { Container, Row, Col, Form } from "react-bootstrap";
+import { Box, Grid, Typography, Slider, Button, Paper } from "@mui/material";
 import { useSelector } from "react-redux";
 import appTheme from "../../styles/theme";
 import AppComboBox from "./AppComboBox";
 import AppInput from "./AppInput";
-import AppButton from "./AppButton";
 
 const ItemFilter = ({
   categories = ["All"],
@@ -18,7 +17,6 @@ const ItemFilter = ({
   const [price, setPrice] = useState(maxPrice);
   const [title, setTitle] = useState("");
 
-  // Whenever filters change, notify parent
   useEffect(() => {
     if (onFilterChange) {
       onFilterChange({ category, price, title });
@@ -32,92 +30,95 @@ const ItemFilter = ({
   };
 
   return (
-    <Container
-      fluid
-      className="my-3 p-4"
-      style={{
+    <Paper
+      elevation={3}
+      sx={{
+        my: 3,
+        p: 4,
         backgroundColor: theme.colors.cardBackground,
         borderRadius: "12px",
         boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
       }}
     >
-      <Row
-        className="align-items-center g-3"
-        style={{
-          display: "flex",
-          justifyContent: "space-around",
-          alignItems: "center",
-        }}
+      <Grid
+        container
+        alignItems="center"
+        spacing={3}
+        justifyContent="space-around"
       >
         {/* Category Filter */}
-        <Col xs={12} sm={6} lg={3}>
-          <div className="d-flex flex-column">
-            <label
-              className="mb-1"
-              style={{
+        <Grid item xs={12} sm={6} lg={3}>
+          <Box display="flex" flexDirection="column">
+            <Typography
+              variant="body2"
+              sx={{
+                mb: 1,
                 fontSize: "0.9rem",
                 color: theme.colors.textMuted,
               }}
             >
               Filter by Category:
-            </label>
+            </Typography>
             <AppComboBox
               name="category"
               value={category}
               onChange={(e) => setCategory(e.target.value)}
               options={categories}
             />
-          </div>
-        </Col>
+          </Box>
+        </Grid>
 
         {/* Price Filter */}
-        <Col xs={12} sm={6} lg={3}>
-          <div className="d-flex flex-column">
-            <label
-              className="mb-1"
-              style={{
+        <Grid item xs={12} sm={6} lg={3}>
+          <Box display="flex" flexDirection="column">
+            <Typography
+              variant="body2"
+              sx={{
+                mb: 1,
                 fontSize: "0.9rem",
                 color: theme.colors.textMuted,
               }}
             >
               Price:
-            </label>
-            <div className="d-flex align-items-center">
-              <Form.Range
+            </Typography>
+            <Box display="flex" alignItems="center">
+              <Slider
                 min={0}
                 max={maxPrice}
                 value={price}
-                onChange={(e) => setPrice(Number(e.target.value))}
-                style={{
+                onChange={(_, val) => setPrice(Number(val))}
+                sx={{
                   flexGrow: 1,
-                  marginRight: "10px",
-                  backgroundColor: theme.colors.inputBackground,
+                  mr: 2,
+                  color: theme.colors.inputBackground,
                 }}
               />
-              <span
-                style={{
+              <Typography
+                variant="body2"
+                sx={{
                   fontSize: "0.9rem",
                   color: theme.colors.textLight,
                 }}
               >
                 ${price}
-              </span>
-            </div>
-          </div>
-        </Col>
+              </Typography>
+            </Box>
+          </Box>
+        </Grid>
 
         {/* Title Filter */}
-        <Col xs={12} sm={6} lg={3}>
-          <div className="d-flex flex-column">
-            <label
-              className="mb-1"
-              style={{
+        <Grid item xs={12} sm={6} lg={3}>
+          <Box display="flex" flexDirection="column">
+            <Typography
+              variant="body2"
+              sx={{
+                mb: 1,
                 fontSize: "0.9rem",
                 color: theme.colors.textMuted,
               }}
             >
               Title:
-            </label>
+            </Typography>
             <AppInput
               type="text"
               placeholder="Search title..."
@@ -125,24 +126,25 @@ const ItemFilter = ({
               onChange={(e) => setTitle(e.target.value)}
               error={false}
             />
-          </div>
-        </Col>
+          </Box>
+        </Grid>
 
         {/* Clear Button */}
-        <Col xs={1} sm={1} lg={1} className="text-end">
-          <AppButton
-            label="Clear"
+        <Grid item xs={1} sm={1} lg={1} sx={{ textAlign: "end" }}>
+          <Button
             onClick={handleClear}
-            variant="primary"
-            size="sm"
-            style={{
+            variant="contained"
+            size="small"
+            sx={{
               padding: "0.5rem 1rem",
               fontSize: "0.9rem",
             }}
-          />
-        </Col>
-      </Row>
-    </Container>
+          >
+            Clear
+          </Button>
+        </Grid>
+      </Grid>
+    </Paper>
   );
 };
 

@@ -1,5 +1,5 @@
 import React from "react";
-import { Form } from "react-bootstrap";
+import { Checkbox, FormControlLabel, FormGroup } from "@mui/material";
 import { useSelector } from "react-redux";
 import appTheme from "../../styles/theme";
 
@@ -8,28 +8,31 @@ const AppCheckbox = ({ label, id, checked, onChange }) => {
   const theme = app.darkMode ? appTheme.dark : appTheme.light;
 
   return (
-    <Form.Group className="mb-3" style={{ margin: "0.2rem" }}>
-      <Form.Check type="checkbox" id={id}>
-        <Form.Check.Input
-          type="checkbox"
-          checked={checked}
-          onChange={onChange}
-          isValid={false}
-          className="shadow-none"
-        />
-        <Form.Check.Label
-          style={{
-            color: theme.colors.textLight,
-            fontFamily: theme.fontFamily,
-            fontSize: "0.9rem",
-            marginLeft: "0.2rem",
-          }}
-        >
-          {label}
-        </Form.Check.Label>
-        <Form.Control.Feedback type="valid">You did it!</Form.Control.Feedback>
-      </Form.Check>
-    </Form.Group>
+    <FormGroup sx={{ m: 0.5 }}>
+      <FormControlLabel
+        control={
+          <Checkbox
+            id={id}
+            checked={checked}
+            onChange={onChange}
+            sx={{
+              color: theme.colors.textLight,
+              "&.Mui-checked": {
+                color: theme.colors.textLight,
+              },
+              boxShadow: "none",
+            }}
+          />
+        }
+        label={label}
+        sx={{
+          color: theme.colors.textLight,
+          fontFamily: theme.fontFamily,
+          fontSize: "0.9rem",
+          ml: 0.5,
+        }}
+      />
+    </FormGroup>
   );
 };
 

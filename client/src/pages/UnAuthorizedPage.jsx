@@ -1,34 +1,36 @@
 import React from "react";
-import { Container, Row, Col } from "react-bootstrap";
-import AppButton from "../components/common/AppButton";
+import { Container, Box, Typography, Button, Grid } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
+import AppButton from "../components/common/AppButton";
 
 const UnAuthorizedPage = () => {
-  const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    // clearState();
-    dispatch({ type: "CLEAR_CART" });
-    dispatch({ type: "auth/clearUser" });
-    navigate("/signin");
+    navigate("/");
   };
 
   return (
-    <Container className="text-center">
-      <Row>
-        <Col lg={8} md={8} sm={8} className="mx-auto">
-          <h1 style={{ marginTop: "25vh" }}>403</h1>
-          <h2>Unauthorized Access</h2>
-          <p>You do not have permission to view this page.</p>
+    <Container maxWidth="md" sx={{ textAlign: "center" }}>
+      <Box sx={{ mt: "25vh" }}>
+        <Typography variant="h1" gutterBottom>
+          403
+        </Typography>
+        <Typography variant="h4" gutterBottom>
+          Unauthorized Access
+        </Typography>
+        <Typography variant="body1" gutterBottom>
+          You do not have permission to view this page.
+        </Typography>
+        <Grid container spacing={2} justifyContent="center" sx={{ mt: 3 }}>
           <AppButton
             label="Return Home"
-            variant="primary"
+            variant="secondary"
             onClick={handleLogout}
           />
-        </Col>
-      </Row>
+        </Grid>
+      </Box>
     </Container>
   );
 };

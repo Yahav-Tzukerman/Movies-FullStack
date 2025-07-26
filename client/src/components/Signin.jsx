@@ -1,16 +1,27 @@
 import React, { useState } from "react";
-import { Form, Container, Row, Col, Card } from "react-bootstrap";
-import AppButton from "./common/AppButton";
-import AppInput from "./common/AppInput";
-import AppLabel from "./common/AppLabel";
-import AppCheckbox from "./common/AppCheckBox";
-import { Link } from "react-router-dom";
+import {
+  Container,
+  Box,
+  Card,
+  CardContent,
+  Typography,
+  TextField,
+  Checkbox,
+  FormControlLabel,
+  Button,
+  Grid,
+  Alert,
+} from "@mui/material";
+import { Link, useNavigate } from "react-router-dom";
 import { validateUsername, validatePassword } from "../utils/regexValidations";
 import { useSelector, useDispatch } from "react-redux";
-import { useNavigate } from "react-router-dom";
 import { setLoading, setUser } from "../redux/authSlice";
+import AppInput from "./common/AppInput";
 import appTheme from "../styles/theme";
-import AppErrorPopUp from "../components/common/AppErrorPopApp";
+import AppButton from "./common/AppButton";
+import AppCheckbox from "./common/AppCheckBox";
+import AppErrorPopup from "./common/AppErrorPopApp";
+import authService from "../services/auth.service";
 
 const SignInComp = () => {
   const app = useSelector((state) => state.app);
@@ -18,7 +29,7 @@ const SignInComp = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState([]);
-  const [rememberMe, setRememberMe] = useState(false);
+  const [rememberMe, setRememberMe] = useState(true);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [popup, setPopup] = useState({
@@ -29,9 +40,21 @@ const SignInComp = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    dispatch(setLoading(true)); // Start loading state
+    dispatch(setLoading(true));
     try {
-      // const response = await UserService.login(username, password);
+      if (!validateUsername(username)) {
+        setErrors((prev) => [...prev, "username"]);
+        createErrorMessage();
+        return;
+      }
+      if (!validatePassword(password)) {
+        setErrors((prev) => [...prev, "password"]);
+        createErrorMessage();
+        return;
+      }
+      const response = await authService.login(username, password);
+
+      console.log("Login response:", response);
 
       if (response.error) {
         setPopup({
@@ -39,12 +62,11 @@ const SignInComp = () => {
           message: response.error,
           type: "error",
           show: true,
-          variant: "error",
         });
         return;
       }
 
-      const token = null;
+      const token = response.data.token;
 
       const userData = {
         ...response.data,
@@ -53,21 +75,14 @@ const SignInComp = () => {
 
       dispatch(setUser(userData));
 
-      // Navigate based on role
-      if (response.data.role === "admin") {
-        navigate("/admin/categories");
-      } else if (response.data.role === "customer") {
-        navigate("/customer/products");
-      } else {
-        navigate("/");
-      }
+      navigate("/");
     } catch (err) {
+      console.error("Login error:", err);
       setPopup({
         ...popup,
-        message: err.message,
+        message: err.response?.data?.message || "An error occurred",
         type: "error",
         show: true,
-        variant: "error",
       });
     } finally {
       dispatch(setLoading(false));
@@ -98,114 +113,118 @@ const SignInComp = () => {
 
   return (
     <Container
-      className="d-flex justify-content-center align-items-center"
-      style={{ minHeight: "100vh" }}
+      maxWidth="sm"
+      sx={{
+        minHeight: "100vh",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+      }}
     >
-      {popup.show && (
-        <AppErrorPopUp
-          handleClose={handleCloseErrorPopup}
+      <Box sx={{ width: "100%" }}>
+        <AppErrorPopup
           show={popup.show}
           label={popup.message}
+          handleClose={handleCloseErrorPopup}
           variant={popup.type}
         />
-      )}
-      <Row className="w-100">
-        <Col xs={12} md={6} lg={4} className="mx-auto">
-          <Card
-            style={{
-              backgroundColor: theme.colors.cardBackground,
-              color: theme.colors.textLight,
-              fontFamily: theme.fontFamily,
-              width: "100%",
-              minHeight: "50vh",
-              padding: "0.2rem",
-              border: ".5px solid black",
-              boxShadow: "0 4px 8px rgba(0, 0, 0, 0.2)",
-            }}
-          >
-            <Card.Body>
-              <Card.Title
-                style={{ fontSize: "2rem", fontWeight: "bold", margin: "3px" }}
-              >
-                Sign in
-              </Card.Title>
-              <Form
-                onSubmit={handleSubmit}
-                onKeyDown={(e) => {
-                  e.key === "Enter" ? handleSubmit(e) : null;
-                  e.key === "Escape" ? null : null;
-                }}
-              >
-                <Form.Group
-                  style={{ marginTop: "4vh" }}
-                  controlId="formBasicUsername"
-                >
-                  <AppLabel text="username" />
-                  <AppInput
-                    type="text"
-                    placeholder="Enter Username"
-                    value={username}
-                    onChange={onUsernameChange}
-                    error={
-                      errors.filter((err) => err === "username").length > 0
-                    }
-                    errorMessage="Username is invalid"
-                  />
-                </Form.Group>
+        <Card
+          sx={{
+            backgroundColor: theme.colors.cardBackground,
+            color: theme.colors.textLight,
+            fontFamily: theme.fontFamily,
+            width: "100%",
+            minHeight: "50vh",
+            p: 2,
+            border: ".5px solid black",
+            boxShadow: "0 4px 8px rgba(0, 0, 0, 0.2)",
+          }}
+        >
+          <CardContent>
+            <Typography
+              variant="h4"
+              fontWeight="bold"
+              sx={{ mb: 2, mt: 1, color: theme.colors.textLight }}
+            >
+              Sign in
+            </Typography>
+            <Box
+              component="form"
+              onSubmit={handleSubmit}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") handleSubmit(e);
+                if (e.key === "Escape") handleCloseErrorPopup(e);
+              }}
+              noValidate
+              autoComplete="off"
+            >
+              <Grid container justifyContent="center" sx={{ mt: 3 }}>
+                <AppInput
+                  type="text"
+                  placeholder="Username"
+                  value={username}
+                  onChange={onUsernameChange}
+                  error={errors.includes("username")}
+                  errorMessage="Username is invalid"
+                  instructions="Username must meet requirements."
+                />
+              </Grid>
+              <Grid container justifyContent="center" sx={{ mt: 1 }}>
+                <AppInput
+                  type="password"
+                  placeholder="Password"
+                  value={password}
+                  onChange={onPasswordChange}
+                  error={errors.includes("password")}
+                  errorMessage="Password is invalid"
+                  instructions="Password must meet requirements."
+                />
+              </Grid>
 
-                <Form.Group controlId="formBasicPassword">
-                  <AppLabel text="Password" />
-                  <AppInput
-                    type="password"
-                    placeholder="Password"
-                    value={password}
-                    onChange={onPasswordChange}
-                    error={
-                      errors.filter((err) => err === "password").length > 0
-                    }
-                    errorMessage="Password is invalid"
-                  />
-                </Form.Group>
-
-                <Form.Group
-                  controlId="formBasicCheckbox"
-                  style={{ marginTop: "3vh" }}
-                >
+              <FormControlLabel
+                control={
                   <AppCheckbox
-                    label="Remember me"
-                    id="rememberMe"
                     checked={rememberMe}
-                    onChange={() => {
-                      setRememberMe(!rememberMe);
-                    }}
+                    label={"Remember me"}
+                    onChange={() => setRememberMe(!rememberMe)}
+                    sx={{ color: theme.colors.primary }}
                   />
-                </Form.Group>
-
-                <div style={{ marginTop: "3vh" }}>
-                  <AppButton label="Sign In" onClick={handleSubmit} />
-                </div>
-
-                <div style={{ marginTop: "3vh", textAlign: "center" }}>
-                  <p style={{ color: theme.colors.textLight }}>
-                    Don't have an account?
-                    <Link
-                      to="/signup"
-                      style={{
-                        color: theme.colors.primary,
-                        textDecoration: "none",
-                        fontWeight: "bold",
-                      }}
-                    >
-                      {" "}
-                      Sign Up
-                    </Link>
-                  </p>
-                </div>
-              </Form>
-            </Card.Body>
-          </Card>
-        </Col>
-      </Row>
+                }
+                sx={{ mt: 2, color: theme.colors.textLight }}
+              />
+              <Grid container justifyContent="center" sx={{ mt: 2 }}>
+                <AppButton
+                  label="Sign In"
+                  type="submit"
+                  size={"lg"}
+                  variant="primary"
+                  fullWidth
+                  onClick={handleSubmit}
+                />
+              </Grid>
+              <Grid container justifyContent="center" sx={{ mt: 3 }}>
+                <Typography
+                  variant="body2"
+                  sx={{ color: theme.colors.textLight }}
+                >
+                  Don't have an account?
+                  <Link
+                    to="/signup"
+                    style={{
+                      color: theme.colors.primary,
+                      textDecoration: "none",
+                      fontWeight: "bold",
+                      marginLeft: "4px",
+                    }}
+                  >
+                    Sign Up
+                  </Link>
+                </Typography>
+              </Grid>
+            </Box>
+          </CardContent>
+        </Card>
+      </Box>
     </Container>
   );
 };

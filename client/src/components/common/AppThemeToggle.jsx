@@ -1,6 +1,6 @@
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Form } from "react-bootstrap";
+import { Switch, FormControlLabel, Box } from "@mui/material";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMoon, faSun } from "@fortawesome/free-solid-svg-icons";
 import appTheme from "../../styles/theme";
@@ -15,20 +15,27 @@ const AppThemeToggle = () => {
   };
 
   return (
-    <Form className="ml-auto" style={{ position: "relative" }}>
-      <Form.Check
-        type="switch"
-        id="theme-switch"
-        onChange={handleThemeToggle}
-        checked={app.darkMode}
+    <Box
+      sx={{
+        ml: "auto",
+        position: "relative",
+        display: "flex",
+        alignItems: "center",
+      }}
+    >
+      <FormControlLabel
+        control={
+          <Switch
+            checked={app.darkMode}
+            onChange={handleThemeToggle}
+            color="default"
+          />
+        }
         label=""
-        style={{
-          paddingLeft: "4.4rem",
-          paddingRight: "1.2rem",
-        }}
+        sx={{ pr: "1.2rem" }}
       />
-      <span
-        style={{
+      <Box
+        sx={{
           position: "absolute",
           right: "0.4rem",
           top: "50%",
@@ -38,24 +45,22 @@ const AppThemeToggle = () => {
       >
         <FontAwesomeIcon
           icon={faSun}
-          style={{ visibility: app.darkMode ? "hidden" : "visible" }}
+          style={{
+            visibility: app.darkMode ? "hidden" : "visible",
+            cursor: "pointer",
+          }}
+          onClick={handleThemeToggle}
         />
-      </span>
-      <span
-        style={{
-          position: "absolute",
-          right: "0.4rem",
-          top: "50%",
-          transform: "translateY(-50%)",
-          color: theme.colors.textLight,
-        }}
-      >
         <FontAwesomeIcon
           icon={faMoon}
-          style={{ visibility: app.darkMode ? "visible" : "hidden" }}
+          style={{
+            visibility: app.darkMode ? "visible" : "hidden",
+            cursor: "pointer",
+          }}
+          onClick={handleThemeToggle}
         />
-      </span>
-    </Form>
+      </Box>
+    </Box>
   );
 };
 

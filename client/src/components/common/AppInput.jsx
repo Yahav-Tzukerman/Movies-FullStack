@@ -1,8 +1,7 @@
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEyeSlash, faEye } from "@fortawesome/free-solid-svg-icons";
-import React, { useState, useRef } from "react";
-import { Form, InputGroup, Overlay, Tooltip } from "react-bootstrap";
+import React, { useState } from "react";
 import { useSelector } from "react-redux";
+import { TextField, InputAdornment, IconButton, Tooltip } from "@mui/material";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
 import appTheme from "../../styles/theme";
 
 const AppInput = ({
@@ -18,90 +17,78 @@ const AppInput = ({
   const theme = app.darkMode ? appTheme.dark : appTheme.light;
   const [selected, setSelected] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [showTooltip, setShowTooltip] = useState(false);
-  const inputRef = useRef(null);
 
   const handleTogglePassword = () => {
-    setShowPassword(!showPassword);
+    setShowPassword((prev) => !prev);
   };
 
   const handleFocus = () => {
     setSelected(true);
-    setShowTooltip(true);
   };
 
   const handleBlur = () => {
     setSelected(false);
-    setShowTooltip(false);
   };
 
   return (
-    <>
-      <Form.Group className="mb-3">
-        <InputGroup>
-          <Form.Control
-            type={type === "password" && showPassword ? "text" : type}
-            placeholder={placeholder}
-            value={value}
-            onChange={onChange}
-            ref={inputRef}
-            onFocus={handleFocus}
-            onBlur={handleBlur}
-            style={{
-              backgroundColor: theme.colors.inputBackground,
-              color: theme.colors.textLight,
+    <Tooltip
+      title={instructions && error ? instructions : ""}
+      open={!!(instructions && error && selected)}
+      placement="left"
+      arrow
+    >
+      <TextField
+        label={placeholder}
+        type={type === "password" && showPassword ? "text" : type}
+        value={value}
+        onChange={onChange}
+        onFocus={handleFocus}
+        onBlur={handleBlur}
+        error={!!error}
+        helperText={error ? errorMessage : ""}
+        variant="outlined"
+        fullWidth
+        InputLabelProps={{ style: { color: theme.colors.textLight } }}
+        InputProps={{
+          style: {
+            backgroundColor: theme.colors.inputBackground,
+            color: theme.colors.textLight,
+            borderRadius: theme.input.borderRadius,
+            fontFamily: theme.fontFamily,
+          },
+          endAdornment:
+            type === "password" ? (
+              <InputAdornment position="end">
+                <IconButton
+                  onClick={handleTogglePassword}
+                  edge="end"
+                  style={{
+                    color: theme.colors.textLight,
+                  }}
+                  tabIndex={-1}
+                >
+                  {showPassword ? <VisibilityOff /> : <Visibility />}
+                </IconButton>
+              </InputAdornment>
+            ) : null,
+        }}
+        sx={{
+          "& .MuiOutlinedInput-root": {
+            "& fieldset": {
               borderColor: error
                 ? theme.colors.error
                 : selected
                 ? theme.colors.inputBorderSelected
                 : theme.colors.inputBorder,
-              borderRadius: theme.input.borderRadius,
-              height: theme.input.height,
-              fontFamily: theme.fontFamily,
-            }}
-            className="shadow-none"
-          />
-          {type === "password" && (
-            <InputGroup.Text
-              onClick={handleTogglePassword}
-              style={{
-                cursor: "pointer",
-                backgroundColor: theme.colors.background,
-                borderColor: error
-                  ? theme.colors.error
-                  : selected
-                  ? theme.colors.inputBorderSelected
-                  : theme.colors.inputBorder,
-              }}
-            >
-              {showPassword ? (
-                <FontAwesomeIcon icon={faEyeSlash} />
-              ) : (
-                <FontAwesomeIcon icon={faEye} />
-              )}
-            </InputGroup.Text>
-          )}
-        </InputGroup>
-        {error && (
-          <Form.Text style={{ margin: "5px", color: theme.colors.error }}>
-            {errorMessage}
-          </Form.Text>
-        )}
-      </Form.Group>
-      {instructions && (
-        <Overlay
-          target={inputRef.current}
-          show={showTooltip && error}
-          placement="left"
-        >
-          {(overlayProps) => (
-            <Tooltip {...overlayProps} bsPrefix="tooltip">
-              {instructions}
-            </Tooltip>
-          )}
-        </Overlay>
-      )}
-    </>
+            },
+            "&:hover fieldset": {
+              // borderColor: theme.colors.inputBorderSelected,
+            },
+          },
+          mb: 2,
+        }}
+      />
+    </Tooltip>
   );
 };
 
