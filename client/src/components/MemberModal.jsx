@@ -1,0 +1,152 @@
+import React, { useState, useEffect } from "react";
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Box,
+  Typography,
+} from "@mui/material";
+import AppInput from "./common/AppInput";
+import AppButton from "./common/AppButton";
+import MembersService from "../services/members.service";
+import appTheme from "../styles/theme";
+import { useSelector } from "react-redux";
+
+const MemberModal = ({ open, handleClose, editMember, onSave }) => {
+  const app = useSelector((state) => state.app);
+  const user = useSelector((state) => state.auth.user);
+  const token = user?.token;
+  const theme = app.darkMode ? appTheme.dark : appTheme.light;
+  const isEdit = Boolean(editMember);
+
+  const [form, setForm] = useState({
+    name: "",
+    email: "",
+    city: "",
+  });
+  const [errors, setErrors] = useState([]);
+
+  useEffect(() => {
+    if (editMember) {
+      setForm({
+        name: editMember.name || "",
+        email: editMember.email || "",
+        city: editMember.city || "",
+      });
+      setErrors([]);
+    } else {
+      setForm({
+        name: "",
+        email: "",
+        city: "",
+      });
+      setErrors([]);
+    }
+  }, [editMember, open]);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setForm((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    let errs = [];
+    if (!form.name) errs.push("Name is required.");
+    if (!form.email) errs.push("Email is required.");
+    if (!form.city) errs.push("City is required.");
+    setErrors(errs);
+    if (errs.length) return;
+    try {
+      if (isEdit) {
+        await MembersService.updateMember(editMember._id, form, token);
+      } else {
+        await MembersService.createMember(form, token);
+      }
+      setErrors([]);
+      onSave();
+    } catch (err) {
+      setErrors([
+        err.response?.data?.message || "Failed to save member, check your data.",
+      ]);
+    }
+  };
+
+  return (
+    <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
+      <Box sx={{ background: theme.colors.cardBackground }}>
+        <form onSubmit={handleSubmit} autoComplete="off">
+          <DialogTitle sx={{ color: theme.colors.textLight, fontSize: 24 }}>
+            {isEdit ? `Edit Member - ${form.name}` : "Add New Member"}
+          </DialogTitle>
+          <DialogContent
+            sx={{ mt: 1, display: "flex", flexDirection: "column", gap: 2 }}
+          >
+            <AppInput
+              type="text"
+              placeholder="Name"
+              name="name"
+              value={form.name}
+              onChange={handleChange}
+              error={errors.includes("Name is required.")}
+              errorMessage={<span>Name is required.</span>}
+              instructions={"Name is required."}
+              fullWidth
+            />
+            <AppInput
+              type="email"
+              placeholder="Email"
+              name="email"
+              value={form.email}
+              onChange={handleChange}
+              error={errors.includes("Email is required.")}
+              errorMessage={<span>Email is required.</span>}
+              instructions={"Email is required."}
+              fullWidth
+            />
+            <AppInput
+              type="text"
+              placeholder="City"
+              name="city"
+              value={form.city}
+              onChange={handleChange}
+              error={errors.includes("City is required.")}
+              errorMessage={<span>City is required.</span>}
+              instructions={"City is required."}
+              fullWidth
+            />
+            {errors.length > 0 && (
+              <Box sx={{ mt: 1 }}>
+                {errors.map((err, idx) => (
+                  <Box key={idx} color="error.main" fontSize={14}>
+                    {err}
+                  </Box>
+                ))}
+              </Box>
+            )}
+          </DialogContent>
+          <DialogActions>
+            <AppButton
+              onClick={handleClose}
+              variant="muted"
+              label="Cancel"
+              size={"sm"}
+            />
+            <AppButton
+              variant="primary"
+              label={isEdit ? "Update Member" : "Create Member"}
+              onClick={handleSubmit}
+              size={"sm"}
+            />
+          </DialogActions>
+        </form>
+      </Box>
+    </Dialog>
+  );
+};
+
+export default MemberModal;

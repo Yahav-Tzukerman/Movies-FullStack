@@ -9,6 +9,7 @@ import HomePage from "./pages/HomePage";
 import { useSelector } from "react-redux";
 import UsersPage from "./pages/UsersPage";
 import MoviesPage from "./pages/MoviesPage";
+import SubscriptionsPage from "./pages/SubscriptionsPage";
 
 const AppRouter = () => {
   const { isAuthenticated } = useSelector((state) => state.auth);
@@ -41,8 +42,7 @@ const AppRouter = () => {
         path="/subscriptions"
         element={
           <ProtectedRoute allowedPermissions={["View Subscriptions"]}>
-            <PageNotFound />
-            {/* <SubscriptionsPage /> */}
+            <SubscriptionsPage />
           </ProtectedRoute>
         }
       />
