@@ -48,7 +48,7 @@ const AppInput = ({
         helperText={error ? errorMessage : ""}
         variant="outlined"
         fullWidth
-        InputLabelProps={{ style: { color: theme.colors.textLight } }}
+        InputLabelProps={{ style: { color: theme.colors.textLight }, shrink: type === "date" ? true : undefined }}
         InputProps={{
           style: {
             backgroundColor: theme.colors.inputBackground,
@@ -81,10 +81,16 @@ const AppInput = ({
                 ? theme.colors.inputBorderSelected
                 : theme.colors.inputBorder,
             },
-            "&:hover fieldset": {
-              // borderColor: theme.colors.inputBorderSelected,
-            },
           },
+          ...(type === "date"
+            ? {
+                "& input[type='date']::-webkit-calendar-picker-indicator": {
+                  filter: app.darkMode ? "invert(1)" : "none",
+                  transform: "scale(1.3)",
+                  cursor: "pointer",
+                },
+              }
+            : {}),
           mb: 2,
         }}
       />

@@ -36,11 +36,10 @@ const createUser = async (req, res) => {
 
 const updateUser = async (req, res) => {
   try {
-    const { permissions, newPassword, ...updateData } = req.body;
+    const { permissions, ...updateData } = req.body;
     const updatedUser = await userService.updateUser(
       req.params.id,
       updateData,
-      newPassword,
       permissions
     );
     res.json(updatedUser);

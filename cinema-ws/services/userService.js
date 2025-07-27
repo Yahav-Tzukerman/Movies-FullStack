@@ -3,6 +3,7 @@ const {
   validateUserData,
   validatePassword,
   validatePermissions,
+  validateUserFull,
 } = require("../validations/userValidation");
 const userJsonRepository = require("../repositories/userJsonRepository");
 const userDBRepository = require("../repositories/userDBRepository");
@@ -110,25 +111,23 @@ const createAccount = async (userName, password) => {
   return { message: "Account created. You can now login." };
 };
 
-const updateUser = async (id, updateData, newPassword, newPermissions) => {
+const updateUser = async (id, updateData, newPermissions) => {
   const userJson = await userJsonRepository.findUserById(id);
   if (!userJson) throw new AppError("User not found in users.json", 404);
 
   const errors = validateUserFull({
     ...updateData,
-    password: newPassword,
     permissions: newPermissions,
   });
   if (errors.length) throw new AppError("Validation error", 400, errors);
 
   await userJsonRepository.updateUser(id, updateData);
 
-  if (newPassword) {
+  if( updateData.userName) {
     const dbUser = await userDBRepository.findUserByUserId(id);
-    if (dbUser) {
-      dbUser.password = await bcrypt.hash(newPassword, 10);
-      await dbUser.save();
-    }
+    if (!dbUser) throw new AppError("User not found in DB", 404);
+    dbUser.userName = updateData.userName;
+    await userDBRepository.updateUserById(dbUser._id, dbUser);
   }
 
   if (newPermissions) {

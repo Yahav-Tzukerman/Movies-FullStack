@@ -83,12 +83,41 @@ const UserModal = ({ open, handleClose, editUser, onSave }) => {
   };
 
   const handlePermissionsChange = (event) => {
-    const { value } = event.target;
+    let newPerms =
+      typeof event.target.value === "string"
+        ? event.target.value.split(",")
+        : event.target.value;
+
+    // Auto-check "View Subscriptions" if one of Create/Update/Delete Subscriptions is selected
+    if (
+      newPerms.some((p) =>
+        [
+          "Create Subscriptions",
+          "Update Subscriptions",
+          "Delete Subscriptions",
+        ].includes(p)
+      ) &&
+      !newPerms.includes("View Subscriptions")
+    ) {
+      newPerms = [...newPerms, "View Subscriptions"];
+    }
+
+    // Auto-check "View Movies" if one of Create/Update/Delete Movies is selected
+    if (
+      newPerms.some((p) =>
+        ["Create Movies", "Update Movies", "Delete Movies"].includes(p)
+      ) &&
+      !newPerms.includes("View Movies")
+    ) {
+      newPerms = [...newPerms, "View Movies"];
+    }
+
     setForm((prev) => ({
       ...prev,
-      permissions: typeof value === "string" ? value.split(",") : value,
+      permissions: newPerms,
     }));
   };
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();

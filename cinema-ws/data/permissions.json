@@ -45,14 +45,14 @@
   {
     "id": "46037562-dd99-417e-abfe-297aa45d368c",
     "permissions": [
-      "View Subscriptions",
-      "Create Subscriptions",
-      "Delete Subscriptions",
-      "Update Subscriptions",
-      "View Movies",
       "Create Movies",
+      "View Movies",
+      "Update Movies",
       "Delete Movies",
-      "Update Movies"
+      "Create Subscriptions",
+      "View Subscriptions",
+      "Update Subscriptions",
+      "Delete Subscriptions"
     ]
   },
   {
@@ -66,6 +66,13 @@
       "Create Movies",
       "Update Movies",
       "Delete Movies"
+    ]
+  },
+  {
+    "id": "38290f1a-d13b-45af-9608-6affbc5c6148",
+    "permissions": [
+      "Create Movies",
+      "View Movies"
     ]
   }
 ]

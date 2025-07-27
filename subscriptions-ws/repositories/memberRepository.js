@@ -2,7 +2,50 @@
 const Member = require("../models/memberModel");
 
 const getAllMembers = async () => {
-  return await Member.find();
+  const members = await Member.aggregate([
+    {
+      $lookup: {
+        from: "subscriptions",
+        localField: "_id",
+        foreignField: "memberId",
+        as: "subscriptions",
+      },
+    },
+    { $unwind: { path: "$subscriptions", preserveNullAndEmptyArrays: true } },
+    { $unwind: { path: "$subscriptions.movies", preserveNullAndEmptyArrays: true } },
+    {
+      $lookup: {
+        from: "movies",
+        localField: "subscriptions.movies.movieId",
+        foreignField: "_id",
+        as: "movieObj",
+      },
+    },
+    { $unwind: { path: "$movieObj", preserveNullAndEmptyArrays: true } },
+    {
+      $group: {
+        _id: "$_id",
+        name: { $first: "$name" },
+        email: { $first: "$email" },
+        city: { $first: "$city" },
+        movies: {
+          $push: {
+            $cond: [
+              { $gt: ["$movieObj._id", null] },
+              {
+                movieId: "$movieObj._id",
+                movieName: "$movieObj.name",
+                date: "$subscriptions.movies.date",
+              },
+              "$$REMOVE"
+            ]
+          }
+        },
+      },
+    },
+    { $sort: { name: 1 } },
+  ]);
+  return members;
 };
 
 const createMember = async (memberData) => {

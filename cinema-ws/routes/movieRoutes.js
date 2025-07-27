@@ -107,7 +107,7 @@ router.post(
 router.put(
   "/:id",
   authMiddleware,
-  permissionsMiddleware("Update Movie"),
+  permissionsMiddleware("Update Movies"),
   movieController.updateMovie
 );
 

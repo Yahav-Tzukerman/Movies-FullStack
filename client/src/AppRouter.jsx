@@ -8,6 +8,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import HomePage from "./pages/HomePage";
 import { useSelector } from "react-redux";
 import UsersPage from "./pages/UsersPage";
+import MoviesPage from "./pages/MoviesPage";
 
 const AppRouter = () => {
   const { isAuthenticated } = useSelector((state) => state.auth);
@@ -31,8 +32,7 @@ const AppRouter = () => {
         path="/movies"
         element={
           <ProtectedRoute allowedPermissions={["View Movies"]}>
-            <PageNotFound />
-            {/* <MoviesPage /> */}
+            <MoviesPage />
           </ProtectedRoute>
         }
       />

@@ -2,7 +2,37 @@
 const Movie = require("../models/movieModel");
 
 const getAllMovies = async () => {
-  return await Movie.find();
+    const movies = await Movie.aggregate([
+    {
+      $lookup: {
+        from: "subscriptions",
+        let: { movieId: "$_id" },
+        pipeline: [
+          { $unwind: "$movies" },
+          { $match: { $expr: { $eq: ["$movies.movieId", "$$movieId"] } } },
+          {
+            $lookup: {
+              from: "members",
+              localField: "memberId",
+              foreignField: "_id",
+              as: "member",
+            },
+          },
+          { $unwind: "$member" },
+          {
+            $project: {
+              _id: 0,
+              memberId: "$member._id",
+              memberName: "$member.name",
+              date: "$movies.date",
+            },
+          },
+        ],
+        as: "subscribers",
+      },
+    },
+  ]);
+  return movies;
 };
 
 const createMovie = async (movieData) => {
