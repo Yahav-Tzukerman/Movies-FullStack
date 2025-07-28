@@ -64,7 +64,7 @@ const createUser = async (userData, password, permissions = []) => {
     firstName: userData.firstName,
     lastName: userData.lastName,
     createdDate: userData.createdDate || now,
-    sessionTimeOut: userData.sessionTimeOut || 30,
+    sessionTimeOut: +userData.sessionTimeOut * 60 || 30,
   };
   await userJsonRepository.addUser(jsonUser);
 
@@ -89,7 +89,6 @@ const createUser = async (userData, password, permissions = []) => {
   return { ...jsonUser, userName: dbUser.userName, dbUserId: dbUser._id };
 };
 
-// createAccount תמיד לפי userId
 const createAccount = async (userName, password) => {
   if (!userName || !password) {
     throw new AppError("Username and password are required.", 400);
@@ -114,6 +113,7 @@ const createAccount = async (userName, password) => {
 const updateUser = async (id, updateData, newPermissions) => {
   const userJson = await userJsonRepository.findUserById(id);
   if (!userJson) throw new AppError("User not found in users.json", 404);
+  updateData.sessionTimeOut = +updateData.sessionTimeOut * 60 || 1800;
 
   const errors = validateUserFull({
     ...updateData,

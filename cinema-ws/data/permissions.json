@@ -74,5 +74,14 @@
       "Create Movies",
       "View Movies"
     ]
+  },
+  {
+    "id": "a414c8af-469d-4ffa-889f-0dc48a56054b",
+    "permissions": [
+      "Create Subscriptions",
+      "View Subscriptions",
+      "Update Subscriptions",
+      "Delete Subscriptions"
+    ]
   }
 ]

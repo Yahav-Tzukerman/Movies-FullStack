@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import {
   AppBar,
   Toolbar,
@@ -13,11 +13,12 @@ import AppThemeToggle from "./AppThemeToggle";
 import appTheme from "../../styles/theme";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowRightFromBracket } from "@fortawesome/free-solid-svg-icons";
+import CinemaAppIcon from "./CinemaAppIcon";
 
 const AppNavbar = ({ handleLogout }) => {
   const app = useSelector((state) => state.app);
   const theme = app.darkMode ? appTheme.dark : appTheme.light;
-  const { user, isAuthenticated, loading } = useSelector((state) => state.auth);
+  const { user, isAuthenticated } = useSelector((state) => state.auth);
 
   return (
     <AppBar
@@ -30,6 +31,9 @@ const AppNavbar = ({ handleLogout }) => {
     >
       <Toolbar sx={{ justifyContent: "space-between" }}>
         <Box sx={{ display: "flex", alignItems: "center" }}>
+          <Box component={Link} to="/" sx={{ display: { xs: "none", lg: "block" }, mr: 2 }}>
+          <CinemaAppIcon size={48} color="#ff6f00" />
+          </Box>
           <Typography
             variant="h6"
             component={Link}
@@ -58,20 +62,24 @@ const AppNavbar = ({ handleLogout }) => {
         <Box sx={{ flexGrow: 1, display: "flex", justifyContent: "center" }}>
           {isAuthenticated && (
             <>
-              <Button
-                component={Link}
-                to="/movies"
-                sx={{ color: theme.colors.textLight, textTransform: "none" }}
-              >
-                Movies
-              </Button>
-              <Button
-                component={Link}
-                to="/subscriptions"
-                sx={{ color: theme.colors.textLight, textTransform: "none" }}
-              >
-                Subscriptions
-              </Button>
+              { user?.permissions.includes("View Movies") && (  
+                <Button
+                  component={Link}
+                  to="/movies"
+                  sx={{ color: theme.colors.textLight, textTransform: "none" }}
+                >
+                  Movies
+                </Button>
+              )}
+              { user?.permissions.includes("View Subscriptions") && (  
+                <Button
+                  component={Link}
+                  to="/subscriptions"
+                  sx={{ color: theme.colors.textLight, textTransform: "none" }}
+                >
+                  Subscriptions
+                </Button>
+              )}
               {user?.permissions.includes("View Users") && (
                 <>
                   <Button

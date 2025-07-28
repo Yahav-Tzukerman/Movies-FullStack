@@ -32,7 +32,7 @@ const login = async (userName, password) => {
   const token = jwt.sign(
     { id: user.userId, userName: user.userName },
     process.env.JWT_SECRET,
-    { expiresIn: "1h" }
+    { expiresIn: +userJson.sessionTimeOut || 3600 }
   );
 
   return {

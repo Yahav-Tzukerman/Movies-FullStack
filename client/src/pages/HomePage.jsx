@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { useSelector } from "react-redux";
 import {
   Box,
@@ -8,18 +8,19 @@ import {
   Card,
   CardContent,
   Avatar,
-  useTheme,
+  CircularProgress 
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-import MoviesService from "../services/movies.service";
-import MembersService from "../services/members.service";
-import SubscriptionsService from "../services/subscriptions.service";
-import UsersService from "../services/users.service";
+import { useMovies } from "../hooks/useMovies";
+import { useMembers } from "../hooks/useMembers";
+import { useSubscriptions } from "../hooks/useSubscriptions";
+import { useUsers } from "../hooks/useUsers";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import MovieIcon from "@mui/icons-material/Movie";
 import PeopleIcon from "@mui/icons-material/People";
 import GroupAddIcon from "@mui/icons-material/GroupAdd";
 import PersonIcon from "@mui/icons-material/Person";
+import appTheme from "../styles/theme";
 
 const cardData = [
   {
@@ -28,13 +29,15 @@ const cardData = [
     icon: <MovieIcon fontSize="large" color="primary" />,
     route: "/movies",
     color: "#fffbe6",
+    permissions: "View Movies",
   },
   {
     key: "members",
     label: "Members",
     icon: <PeopleIcon fontSize="large" color="secondary" />,
-    route: "/members",
+    route: "/subscriptions",
     color: "#e6f7ff",
+    permissions: "View Subscriptions",
   },
   {
     key: "subscriptions",
@@ -42,6 +45,7 @@ const cardData = [
     icon: <GroupAddIcon fontSize="large" color="success" />,
     route: "/subscriptions",
     color: "#e6ffe6",
+    permissions: "View Subscriptions",
   },
   {
     key: "users",
@@ -49,53 +53,40 @@ const cardData = [
     icon: <PersonIcon fontSize="large" color="info" />,
     route: "/users",
     color: "#ece6ff",
+    permissions: "View Users",
     adminOnly: true,
   },
 ];
 
 const HomePage = () => {
-  const appTheme = useSelector((state) => state.app);
-  const theme = useTheme();
+  const app = useSelector((state) => state.app);
+  const theme = app.darkMode ? appTheme.dark : appTheme.light;
   const { user } = useSelector((state) => state.auth);
+  const { movies, loading: loadingMovies } = useMovies();
+  const { members, loading: loadingMembers } = useMembers();
+  const { subscriptions, loading: loadingSubs } = useSubscriptions();
+  const { users, loading: loadingUsers } = useUsers();
   const navigate = useNavigate();
-  const token = user?.token || "";
-  const [stats, setStats] = useState({
-    movies: 0,
-    members: 0,
-    subscriptions: 0,
-    users: 0,
-  });
+  const stats = {
+    movies: movies.length,
+    members: members.length,
+    subscriptions: subscriptions.length,
+    users: users.length,
+  };
 
-  const DASHBOARD_BG = appTheme.darkMode
+  const DASHBOARD_BG = app.darkMode
     ? "https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=800&q=80"
     : "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80";
-
-  useEffect(() => {
-    MoviesService.getAllMovies(token).then((res) =>
-      setStats((prev) => ({ ...prev, movies: res.data.length }))
-    );
-    MembersService.getAllMembers(token).then((res) =>
-      setStats((prev) => ({ ...prev, members: res.data.length }))
-    );
-    SubscriptionsService.getAllSubscriptions(token).then((res) =>
-      setStats((prev) => ({ ...prev, subscriptions: res.data.length }))
-    );
-    if (user?.permissions?.includes("View Users")) {
-      UsersService.getAllUsers(token).then((res) =>
-        setStats((prev) => ({ ...prev, users: res.data.length }))
-      );
-    }
-  }, [token, user]);
 
   return (
     <Box
       minHeight="100vh"
       sx={{
-        background: `linear-gradient(135deg, rgba(200,200,255,0.2), rgba(80,80,120,0.1)), url(${DASHBOARD_BG}) center/cover no-repeat`,
+        background: {},
         py: 8,
       }}
     >
-      <Box maxWidth={800} mx="auto">
+      <Box maxWidth={800} mx="auto" mt={10} position="relative">
         <Paper
           elevation={5}
           sx={{
@@ -104,6 +95,8 @@ const HomePage = () => {
             borderRadius: 4,
             mb: 5,
             opacity: 0.97,
+            background: `linear-gradient(135deg, rgba(200,200,255,0.2), rgba(80,80,120,0.1)), url(${DASHBOARD_BG}) center/cover no-repeat`,
+            py: 8,
           }}
         >
           <Box mb={2}>
@@ -111,7 +104,7 @@ const HomePage = () => {
               sx={{
                 width: 64,
                 height: 64,
-                bgcolor: "primary.main",
+                bgcolor: theme.colors.primary,
                 mx: "auto",
                 boxShadow: 2,
                 fontSize: 36,
@@ -120,10 +113,10 @@ const HomePage = () => {
               <DashboardIcon fontSize="large" />
             </Avatar>
           </Box>
-          <Typography variant="h4" gutterBottom fontWeight={600}>
+          <Typography variant="h4" gutterBottom fontWeight={600} sx={{ color: "black", fontWeight: "bold" }}>
             Welcome, {user?.firstName || user?.userName}!
           </Typography>
-          <Typography variant="body1" sx={{ mb: 3 }}>
+          <Typography variant="body1" sx={{ mb: 3, color: "black", fontWeight: "bold" }}>
             This is your personal dashboard.
             <br />
             {user?.permissions?.includes("View Users")
@@ -137,12 +130,11 @@ const HomePage = () => {
               )
               .map((card) => (
                 <Grid item xs={12} sm={6} md={3} key={card.key}>
-                  <Card
-                    onClick={() => navigate(card.route)}
-                    sx={{
-                      bgcolor: appTheme.darkMode
-                        ? theme.palette.background.paper
-                        : card.color,
+                  { user?.permissions?.includes(card.permissions) && (
+                    <Card
+                      onClick={() => navigate(card.route)}
+                      sx={{
+                        bgcolor: card.color,
                       minHeight: 160,
                       height: "100%",
                       cursor: "pointer",
@@ -155,7 +147,7 @@ const HomePage = () => {
                       "&:hover": {
                         boxShadow: 8,
                         transform: "scale(1.02)",
-                        border: `2px solid ${theme.palette.primary.main}`,
+                        border: `2px solid ${theme.colors.inputBorder}`,
                         background: "#f0f4ff",
                       },
                     }}
@@ -191,10 +183,27 @@ const HomePage = () => {
                       </Typography>
                     </CardContent>
                   </Card>
+              )}  
                 </Grid>
               ))}
           </Grid>
         </Paper>
+        {(loadingMovies || loadingMembers || loadingSubs || loadingUsers) && (
+          <Box
+            position="fixed"
+            top={0}
+            left={0}
+            width="100vw"
+            height="100vh"
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
+            zIndex={1300}
+            sx={{ background: "rgba(0,0,0,0.2)" }}
+          >
+            <CircularProgress size={64} color="primary" thickness={5} />
+          </Box>
+        )}
       </Box>
     </Box>
   );

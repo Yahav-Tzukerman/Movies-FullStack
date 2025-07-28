@@ -4,8 +4,8 @@ import { Container } from "react-bootstrap";
 import AppNavbar from "./components/common/AppNavbar";
 import { useSelector, useDispatch } from "react-redux";
 import appTheme from "./styles/theme";
-import { clearState } from "./utils/localStorage";
 import { useNavigate } from "react-router-dom";
+import { setupAxiosInterceptors } from "./services/axiosConfig";
 
 const App = () => {
   const app = useSelector((state) => state.app);
@@ -15,11 +15,10 @@ const App = () => {
 
   useEffect(() => {
     dispatch({ type: "auth/initializeAuth" });
+    setupAxiosInterceptors();
   }, [dispatch]);
 
   const handleLogout = () => {
-    // clearState();
-    dispatch({ type: "CLEAR_CART" });
     dispatch({ type: "auth/clearUser" });
     navigate("/signin");
   };
