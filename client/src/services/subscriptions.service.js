@@ -1,5 +1,10 @@
 import axios from "axios";
-const SUBSCRIPTIONS = `http://localhost:8000/api/subscriptions`;
+
+const API =
+  import.meta.env.VITE_ENVIRONMENT === "production"
+    ? import.meta.env.VITE_CINEMA_WS_PROD
+    : import.meta.env.VITE_CINEMA_WS_LOCAL;
+const SUBSCRIPTIONS = `${API}/subscriptions`;
 
 class SubscriptionsService {
   getAllSubscriptions(token) {

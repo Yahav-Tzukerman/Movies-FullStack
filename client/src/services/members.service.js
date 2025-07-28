@@ -1,5 +1,9 @@
 import axios from "axios";
-const MEMBERS = `http://localhost:8000/api/members`;
+const API =
+  import.meta.env.VITE_ENVIRONMENT === "production"
+    ? import.meta.env.VITE_CINEMA_WS_PROD
+    : import.meta.env.VITE_CINEMA_WS_LOCAL;
+const MEMBERS = `${API}/members`;
 
 class MembersService {
   getAllMembers(token) {

@@ -1,10 +1,10 @@
 import axios from "axios";
 
 const API =
-  import.meta.env.VITE_ENVIRONMENT === "development"
-    ? import.meta.env.VITE_CINEMA_WS_LOCAL
-    : import.meta.env.VITE_CINEMA_WS_PROD;
-const AUTH = `http://localhost:8000/api/auth`;
+  import.meta.env.VITE_ENVIRONMENT === "production"
+    ? import.meta.env.VITE_CINEMA_WS_PROD
+    : import.meta.env.VITE_CINEMA_WS_LOCAL;
+const AUTH = `${API}/auth`;
 
 class AuthService {
   login(userName, password) {

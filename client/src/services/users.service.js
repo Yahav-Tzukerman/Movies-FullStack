@@ -1,5 +1,10 @@
 import axios from "axios";
-const USERS = `http://localhost:8000/api/users`;
+
+const API =
+  import.meta.env.VITE_ENVIRONMENT === "production"
+    ? import.meta.env.VITE_CINEMA_WS_PROD
+    : import.meta.env.VITE_CINEMA_WS_LOCAL;
+const USERS = `${API}/users`;
 
 class UsersService {
   getAllUsers(token) {

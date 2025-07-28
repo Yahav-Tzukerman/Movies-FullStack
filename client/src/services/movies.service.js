@@ -1,5 +1,10 @@
 import axios from "axios";
-const MOVIES = `http://localhost:8000/api/movies`;
+
+const API =
+  import.meta.env.VITE_ENVIRONMENT === "production"
+    ? import.meta.env.VITE_CINEMA_WS_PROD
+    : import.meta.env.VITE_CINEMA_WS_LOCAL;
+const MOVIES = `${API}/movies`;
 
 class MoviesService {
   getAllMovies(token) {
