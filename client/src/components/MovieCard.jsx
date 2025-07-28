@@ -17,12 +17,14 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import appTheme from "../styles/theme";
 import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 
 const MovieCard = ({ movie, onEdit, onDelete }) => {
   const { user } = useSelector((state) => state.auth);
   const permissions = user?.permissions || [];
   const app = useSelector((state) => state.app);
   const theme = app.darkMode ? appTheme.dark : appTheme.light;
+  const navigate = useNavigate();
 
   return (
     <Card
@@ -89,10 +91,16 @@ const MovieCard = ({ movie, onEdit, onDelete }) => {
                 }}
               >
                 <Box>
-                  {/* אם יש דף מנוי - עשה קישור */}
-                  <Link href={`/members/${sub.memberId}`} underline="hover" color={theme.colors.textLight}>
-                    {sub.memberName}
-                  </Link>
+                  <Link
+                  component="button"
+                  underline="hover"
+                  color={theme.colors.textLight}
+                  onClick={() =>
+                    navigate(`/subscriptions?search=${encodeURIComponent(sub.memberName)}`)
+                  }
+                >
+                  {sub.memberName}
+                </Link>
                 </Box>
                 <Box sx={{ fontSize: 12, color: theme.colors.textSecondary }}>
                   {sub.date ? new Date(sub.date).toLocaleDateString("he-IL") : ""}

@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { Box, Typography, Paper, Grid } from "@mui/material";
-import MoviesService from "../services/movies.service";
+import { useLocation } from "react-router-dom";
+import { Box, Typography, Paper, Grid, CircularProgress } from "@mui/material";
+import { useMovies } from "../hooks/useMovies";
 import AddIcon from "@mui/icons-material/Add";
 import AppInput from "../components/common/AppInput";
 import MovieCard from "../components/MovieCard";
@@ -12,27 +13,21 @@ import appTheme from "../styles/theme";
 
 const MoviesPage = () => {
   const { user } = useSelector((state) => state.auth);
-  const token = user?.token;
+  const { movies, loading, reload, deleteMovie } = useMovies();
   const app = useSelector((state) => state.app);
   const theme = app.darkMode ? appTheme.dark : appTheme.light;
-  
-  const [movies, setMovies] = useState([]);
+  const location = useLocation();
+
   const [search, setSearch] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
   const [editMovie, setEditMovie] = useState(null);
   const [error, setError] = useState("");
 
   useEffect(() => {
-    loadMovies();
-  }, []);
-
-  const loadMovies = () => {
-    MoviesService.getAllMovies(token)
-      .then((res) => setMovies(res.data))
-      .catch((err) =>
-        setError(err.response?.data?.message || "Failed to fetch movies")
-      );
-  };
+    const params = new URLSearchParams(location.search);
+    const q = params.get("search");
+    if (q) setSearch(q);
+  }, [location.search]);
 
   const filteredMovies = movies.filter((movie) =>
     movie.name.toLowerCase().includes(search.toLowerCase())
@@ -50,8 +45,8 @@ const MoviesPage = () => {
 
   const handleDelete = (id) => {
     if (window.confirm("Are you sure you want to delete this movie?")) {
-      MoviesService.deleteMovie(id, token)
-        .then(loadMovies)
+      deleteMovie(id)
+        .then(reload())
         .catch((err) =>
           setError(err.response?.data?.message || "Failed to delete movie")
         );
@@ -60,11 +55,11 @@ const MoviesPage = () => {
 
   const handleModalSave = () => {
     setModalOpen(false);
-    loadMovies();
+    reload();
   };
 
   return (
-    <Box maxWidth={1200} mx="auto" mt={5}>
+    <Box maxWidth={1200} mx="auto" mt={5} position="relative" minHeight="60vh">
       <Paper
         elevation={4}
         sx={{ p: 4, background: theme.colors.cardBackground }}
@@ -113,6 +108,22 @@ const MoviesPage = () => {
         editMovie={editMovie}
         onSave={handleModalSave}
       />
+      {loading && (
+        <Box
+          position="fixed"
+          top={0}
+          left={0}
+          width="100vw"
+          height="100vh"
+          display="flex"
+          alignItems="center"
+          justifyContent="center"
+          zIndex={1300}
+          sx={{ background: "rgba(0,0,0,0.2)" }}
+        >
+          <CircularProgress size={64} color="primary" thickness={5} />
+        </Box>
+      )}
       <AppErrorPopApp message={error} onClose={() => setError("")} />
     </Box>
   );

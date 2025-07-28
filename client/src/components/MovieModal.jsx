@@ -8,7 +8,7 @@ import {
 } from "@mui/material";
 import AppInput from "./common/AppInput";
 import AppButton from "./common/AppButton";
-import MoviesService from "../services/movies.service";
+import { useMovies } from "../hooks/useMovies";
 import appTheme from "../styles/theme";
 import { useSelector } from "react-redux";
 import AppComboBox from "./common/AppComboBox";
@@ -21,9 +21,8 @@ const GENRE_OPTIONS = [
 
 const MovieModal = ({ open, handleClose, editMovie, onSave }) => {
   const app = useSelector((state) => state.app);
-  const user = useSelector((state) => state.auth.user);
-  const token = user?.token;
   const theme = app.darkMode ? appTheme.dark : appTheme.light;
+  const { createMovie, updateMovie } = useMovies();
   const isEdit = Boolean(editMovie);
   const [form, setForm] = useState({
     name: "",
@@ -84,9 +83,9 @@ const MovieModal = ({ open, handleClose, editMovie, onSave }) => {
     if (errs.length) return;
     try {
       if (isEdit) {
-        await MoviesService.updateMovie(editMovie._id, form, token);
+        await updateMovie(editMovie._id, form);
       } else {
-        await MoviesService.createMovie(form, token);
+        await createMovie(form);
       }
       onSave();
     } catch (err) {

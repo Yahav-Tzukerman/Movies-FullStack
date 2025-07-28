@@ -25,6 +25,7 @@ import appTheme from "../styles/theme";
 import { useSelector } from "react-redux";
 import AppComboBox from "./common/AppComboBox";
 import AppInput from "./common/AppInput";
+import { useNavigate } from "react-router-dom";
 
 const MemberCard = ({
   member,
@@ -42,6 +43,7 @@ const MemberCard = ({
   const [selectedMovieId, setSelectedMovieId] = useState("");
   const [selectedDate, setSelectedDate] = useState("");
   const watchedMovieIds = member.movies.map((m) => m.movieId);
+  const navigate = useNavigate();
 
   const unwatchedMovies = allMovies.filter(
     (movie) => !watchedMovieIds.includes(movie._id)
@@ -99,7 +101,14 @@ const MemberCard = ({
                 px: 0.5, py: 0, display: "flex", justifyContent: "space-between", fontSize: 14,
               }}
             >
-              <Link href={`/movies/${movie.movieId}`} underline="hover" color={theme.colors.textLight}>
+              <Link
+                component="button"
+                underline="hover"
+                color={theme.colors.textLight}
+                onClick={() =>
+                  navigate(`/movies?search=${encodeURIComponent(movie.movieName)}`)
+                }
+              >
                 {movie.movieName}
               </Link>
               <span style={{ fontSize: 12, color: theme.colors.textSecondary }}>

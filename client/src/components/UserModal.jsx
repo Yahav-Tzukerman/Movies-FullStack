@@ -16,7 +16,7 @@ import {
   FormHelperText,
   Typography,
 } from "@mui/material";
-import UsersService from "../services/users.service";
+import { useUsers } from "../hooks/useUsers";
 import { PERMISSIONS, validateUserFull } from "../utils/userValidation";
 import appTheme from "../styles/theme";
 import { useSelector } from "react-redux";
@@ -27,10 +27,14 @@ import App from "../App";
 
 const UserModal = ({ open, handleClose, editUser, onSave }) => {
   const app = useSelector((state) => state.app);
-  const user = useSelector((state) => state.auth.user);
-  const token = user?.token;
+  // const user = useSelector((state) => state.auth.user);
+  // const token = user?.token;
   const theme = app.darkMode ? appTheme.dark : appTheme.light;
   const isEdit = Boolean(editUser);
+  const {
+    createUser,
+    updateUser,
+  } = useUsers();
 
   const [form, setForm] = useState({
     firstName: "",
@@ -128,9 +132,9 @@ const UserModal = ({ open, handleClose, editUser, onSave }) => {
     }
     try {
       if (isEdit) {
-        await UsersService.updateUser(editUser.id, form, token);
+        await updateUser(editUser.id, form);
       } else {
-        await UsersService.createUser(form, token);
+        await createUser(form);
       }
       setErrors([]);
       onSave();

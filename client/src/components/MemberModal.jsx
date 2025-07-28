@@ -9,15 +9,14 @@ import {
 } from "@mui/material";
 import AppInput from "./common/AppInput";
 import AppButton from "./common/AppButton";
-import MembersService from "../services/members.service";
+import { useMembers } from "../hooks/useMembers";
 import appTheme from "../styles/theme";
 import { useSelector } from "react-redux";
 
 const MemberModal = ({ open, handleClose, editMember, onSave }) => {
   const app = useSelector((state) => state.app);
-  const user = useSelector((state) => state.auth.user);
-  const token = user?.token;
   const theme = app.darkMode ? appTheme.dark : appTheme.light;
+  const { createMember, updateMember } = useMembers();
   const isEdit = Boolean(editMember);
 
   const [form, setForm] = useState({
@@ -65,9 +64,9 @@ const MemberModal = ({ open, handleClose, editMember, onSave }) => {
     if (errs.length) return;
     try {
       if (isEdit) {
-        await MembersService.updateMember(editMember._id, form, token);
+        await updateMember(editMember._id, form);
       } else {
-        await MembersService.createMember(form, token);
+        await createMember(form);
       }
       setErrors([]);
       onSave();

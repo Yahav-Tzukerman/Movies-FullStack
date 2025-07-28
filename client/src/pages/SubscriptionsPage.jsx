@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { Box, Typography, Paper, Grid } from "@mui/material";
-import MembersService from "../services/members.service";
-import MoviesService from "../services/movies.service";
-import SubscriptionsService from "../services/subscriptions.service";
+import { useLocation } from "react-router-dom";
+import { Box, Typography, Paper, Grid, CircularProgress  } from "@mui/material";
+import { useMembers } from "../hooks/useMembers";
+import { useMovies } from "../hooks/useMovies";
 import AddIcon from "@mui/icons-material/PersonAdd";
 import MemberCard from "../components/MemberCard";
 import MemberModal from "../components/MemberModal";
@@ -14,36 +14,22 @@ import AppInput from "../components/common/AppInput";
 
 const SubscriptionsPage = () => {
   const { user } = useSelector((state) => state.auth);
-  const token = user?.token;
   const app = useSelector((state) => state.app);
   const theme = app.darkMode ? appTheme.dark : appTheme.light;
+  const { members, loading, reload, deleteMember, addMovieToSubscriptionByMember } = useMembers();
+  const { movies } = useMovies();
+  const location = useLocation();
 
-  const [members, setMembers] = useState([]);
-  const [movies, setMovies] = useState([]);
   const [search, setSearch] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
   const [editMember, setEditMember] = useState(null);
   const [error, setError] = useState("");
 
   useEffect(() => {
-    loadMembers();
-    loadMovies();
-  }, []);
-
-  const loadMembers = () => {
-    MembersService.getAllMembers(token)
-      .then((res) => setMembers(res.data))
-      .catch((err) =>
-        setError(err.response?.data?.message || "Failed to fetch members")
-      );
-  };
-  const loadMovies = () => {
-    MoviesService.getAllMovies(token)
-      .then((res) => setMovies(res.data))
-      .catch((err) =>
-        setError(err.response?.data?.message || "Failed to fetch movies")
-      );
-  };
+    const params = new URLSearchParams(location.search);
+    const q = params.get("search");
+    if (q) setSearch(q);
+  }, [location.search]);
 
   const filteredMembers = members.filter((member) =>
     member.name?.toLowerCase().includes(search.toLowerCase())
@@ -61,8 +47,8 @@ const SubscriptionsPage = () => {
 
   const handleDelete = (id) => {
     if (window.confirm("Are you sure you want to delete this member?")) {
-      MembersService.deleteMember(id, token)
-        .then(loadMembers)
+      deleteMember(id)
+        .then(reload())
         .catch((err) =>
           setError(err.response?.data?.message || "Failed to delete member")
         );
@@ -71,16 +57,15 @@ const SubscriptionsPage = () => {
 
   const handleModalSave = () => {
     setModalOpen(false);
-    loadMembers();
+    reload();
   };
 
   const handleSubscribe = (memberId, movieId, date) => {
-    SubscriptionsService.addMovieToSubscriptionByMember(
+    addMovieToSubscriptionByMember(
       memberId,
-      { movieId, date },
-      token
+      { movieId, date }
     )
-      .then(loadMembers)
+      .then(reload())
       .catch((err) => setError(err.response?.data?.message || "Failed..."));
   };
 
@@ -129,6 +114,22 @@ const SubscriptionsPage = () => {
         editMember={editMember}
         onSave={handleModalSave}
       />
+      {loading && (
+        <Box
+          position="fixed"
+          top={0}
+          left={0}
+          width="100vw"
+          height="100vh"
+          display="flex"
+          alignItems="center"
+          justifyContent="center"
+          zIndex={1300}
+          sx={{ background: "rgba(0,0,0,0.2)" }}
+        >
+          <CircularProgress size={64} color="primary" thickness={5} />
+        </Box>
+      )}
       <AppErrorPopApp message={error} onClose={() => setError("")} />
     </Box>
   );

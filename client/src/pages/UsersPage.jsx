@@ -1,40 +1,24 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useSelector } from "react-redux";
-import { Box, Typography, Paper, Grid } from "@mui/material";
-import UsersService from "../services/users.service";
+import { Box, Typography, Paper, Grid, CircularProgress } from "@mui/material";
 import AddIcon from "@mui/icons-material/PersonAdd";
 import AppInput from "../components/common/AppInput";
 import UserCard from "../components/UserCard";
 import UserModal from "../components/UserModal";
 import AppErrorPopApp from "../components/common/AppErrorPopApp";
 import AppButton from "../components/common/AppButton";
+import { useUsers } from "../hooks/useUsers";
 import appTheme from "../styles/theme";
 
 const UsersPage = () => {
   const { user } = useSelector((state) => state.auth);
-  const token = user?.token;
   const app = useSelector((state) => state.app);
   const theme = app.darkMode ? appTheme.dark : appTheme.light;
-  const [users, setUsers] = useState([]);
+  const { users, loading, reload, deleteUser } = useUsers();
   const [search, setSearch] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
   const [editUser, setEditUser] = useState(null);
   const [error, setError] = useState("");
-
-  useEffect(() => {
-    loadUsers();
-  }, []);
-
-  const loadUsers = () => {
-    UsersService.getAllUsers(token)
-      .then((res) => {
-        setUsers(res.data);
-        console.log("Users loaded:", res.data);
-      })
-      .catch((err) =>
-        setError(err.response?.data?.message || "Failed to fetch users")
-      );
-  };
 
   const filteredUsers = users.filter(
     (u) =>
@@ -54,17 +38,19 @@ const UsersPage = () => {
 
   const handleDelete = (id) => {
     if (window.confirm("Are you sure you want to delete this user?")) {
-      UsersService.deleteUser(id, token)
-        .then(loadUsers)
-        .catch((err) =>
-          setError(err.response?.data?.message || "Failed to delete user")
-        );
+      deleteUser(id)
+        .then(() => {
+          reload();
+        })
+        .catch((err) => {
+          setError(err.response?.data?.message || "Failed to delete user");
+        });
     }
   };
 
   const handleModalSave = () => {
     setModalOpen(false);
-    loadUsers();
+    reload();
   };
 
   return (
@@ -117,6 +103,22 @@ const UsersPage = () => {
         editUser={editUser}
         onSave={handleModalSave}
       />
+      {loading && (
+        <Box
+          position="fixed"
+          top={0}
+          left={0}
+          width="100vw"
+          height="100vh"
+          display="flex"
+          alignItems="center"
+          justifyContent="center"
+          zIndex={1300}
+          sx={{ background: "rgba(0,0,0,0.2)" }}
+        >
+          <CircularProgress size={64} color="primary" thickness={5} />
+        </Box>
+      )}
       <AppErrorPopApp message={error} onClose={() => setError("")} />
     </Box>
   );
