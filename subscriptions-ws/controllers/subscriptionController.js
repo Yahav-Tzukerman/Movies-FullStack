@@ -21,9 +21,7 @@ const createSubscription = async (req, res) => {
 
 const addMovieToSubscription = async (req, res) => {
   try {
-    console.log("Adding movie to subscription:", req.params.id, req.body);
-    const updatedSubscription =
-      await subscriptionService.addMovieToSubscription(req.params.id, req.body);
+    const updatedSubscription = await subscriptionService.subscribeToMovie(req.params.memberId, req.body);
     res.json(updatedSubscription);
   } catch (err) {
     res.status(400).json({ message: err.message });

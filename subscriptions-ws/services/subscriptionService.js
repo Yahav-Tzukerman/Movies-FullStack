@@ -27,17 +27,15 @@ const createSubscription = async (subscriptionData) => {
   return await subscriptionRepository.createSubscription(subscriptionData);
 };
 
-const addMovieToSubscription = async (subscriptionId, movieEntry) => {
-  const existingSubscription = await subscriptionRepository.getSubscriptionById(
-    subscriptionId
-  );
+const subscribeToMovie = async (memberId, movieEntry) => {
+  const existingSubscription = await subscriptionRepository.getSubscriptionByMemberId(memberId);
   if (!existingSubscription) {
-    throw new AppError(`Subscription with ID ${subscriptionId} not found`, 404);
+    return await createSubscription({
+      memberId,
+      movies: [movieEntry],
+    });
   }
-  return await subscriptionRepository.addMovieToSubscription(
-    subscriptionId,
-    movieEntry
-  );
+  return await subscriptionRepository.subscribeToMovie(memberId, movieEntry);
 };
 
 const deleteSubscription = async (id) => {
@@ -53,6 +51,21 @@ const deleteSubscription = async (id) => {
 module.exports = {
   getAllSubscriptions,
   createSubscription,
-  addMovieToSubscription,
+  subscribeToMovie,
   deleteSubscription,
 };
+
+
+
+// const addMovieToSubscription = async (subscriptionId, movieEntry) => {
+//   const existingSubscription = await subscriptionRepository.getSubscriptionById(
+//     subscriptionId
+//   );
+//   if (!existingSubscription) {
+//     throw new AppError(`Subscription with ID ${subscriptionId} not found`, 404);
+//   }
+//   return await subscriptionRepository.addMovieToSubscription(
+//     subscriptionId,
+//     movieEntry
+//   );
+// };

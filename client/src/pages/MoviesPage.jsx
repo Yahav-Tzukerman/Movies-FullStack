@@ -15,6 +15,7 @@ const MoviesPage = () => {
   const token = user?.token;
   const app = useSelector((state) => state.app);
   const theme = app.darkMode ? appTheme.dark : appTheme.light;
+  
   const [movies, setMovies] = useState([]);
   const [search, setSearch] = useState("");
   const [modalOpen, setModalOpen] = useState(false);

@@ -97,7 +97,7 @@ router.post(
 router.put(
   "/:id",
   authMiddleware,
-  permissionsMiddleware("Update Subscription"),
+  permissionsMiddleware("Update Subscriptions"),
   memberController.updateMember
 );
 

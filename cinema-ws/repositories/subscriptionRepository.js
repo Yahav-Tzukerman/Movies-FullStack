@@ -20,12 +20,16 @@ const createSubscription = async (subscriptionData) => {
   });
 };
 
-const addMovieToSubscription = async (subscriptionId, movieEntry) => {
-  return await axios.put(`${baseUrl}/${subscriptionId}`, movieEntry, {
-    headers: {
-      "x-api-key": config.subsWsApiKey,
-    },
-  });
+const addMovieToSubscription = async (memberId, movieEntry) => {
+  return await axios.put(
+    `${baseUrl}/by-member/${memberId}/addMovie`,
+    movieEntry,
+    {
+      headers: {
+        "x-api-key": config.subsWsApiKey,
+      },
+    }
+  );
 };
 
 const deleteSubscription = async (id) => {

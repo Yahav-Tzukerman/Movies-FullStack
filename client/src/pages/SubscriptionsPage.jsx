@@ -3,12 +3,14 @@ import { useSelector } from "react-redux";
 import { Box, Typography, Paper, Grid } from "@mui/material";
 import MembersService from "../services/members.service";
 import MoviesService from "../services/movies.service";
+import SubscriptionsService from "../services/subscriptions.service";
 import AddIcon from "@mui/icons-material/PersonAdd";
 import MemberCard from "../components/MemberCard";
 import MemberModal from "../components/MemberModal";
 import AppErrorPopApp from "../components/common/AppErrorPopApp";
 import AppButton from "../components/common/AppButton";
 import appTheme from "../styles/theme";
+import AppInput from "../components/common/AppInput";
 
 const SubscriptionsPage = () => {
   const { user } = useSelector((state) => state.auth);
@@ -43,8 +45,8 @@ const SubscriptionsPage = () => {
       );
   };
 
-  const filteredMembers = members.filter((m) =>
-    m.name?.toLowerCase().includes(search.toLowerCase())
+  const filteredMembers = members.filter((member) =>
+    member.name?.toLowerCase().includes(search.toLowerCase())
   );
 
   const handleAdd = () => {
@@ -72,16 +74,14 @@ const SubscriptionsPage = () => {
     loadMembers();
   };
 
-  // הוספת מנוי חדש לסרט (subscription)
   const handleSubscribe = (memberId, movieId, date) => {
-    MembersService.subscribeToMovie(memberId, movieId, date, token)
+    SubscriptionsService.addMovieToSubscriptionByMember(
+      memberId,
+      { movieId, date },
+      token
+    )
       .then(loadMembers)
-      .catch((err) =>
-        setError(
-          err.response?.data?.message ||
-            "Failed to subscribe to movie. Try again."
-        )
-      );
+      .catch((err) => setError(err.response?.data?.message || "Failed..."));
   };
 
   return (
@@ -98,6 +98,15 @@ const SubscriptionsPage = () => {
               onClick={handleAdd}
             />
           )}
+        </Box>
+        <Box mb={2}>
+          <AppInput
+            label="Search members"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search by member name"
+            fullWidth
+          />
         </Box>
         <Grid container spacing={3} sx={{ justifyContent: "center" }}>
           {filteredMembers.map((member) => (

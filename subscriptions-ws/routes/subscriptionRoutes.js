@@ -54,17 +54,17 @@ router.post("/", subscriptionController.createSubscription);
 
 /**
  * @swagger
- * /api/subscriptions/{id}/addMovie:
+ * /api/subscriptions/by-member/{memberId}/addMovie:
  *   put:
  *     summary: Add a movie to a subscription
  *     tags: [Subscriptions]
  *     parameters:
  *       - in: path
- *         name: id
+ *         name: memberId
  *         schema:
  *           type: string
  *         required: true
- *         description: The subscription ID
+ *         description: The Member ID
  *     requestBody:
  *       required: true
  *       content:
@@ -83,7 +83,7 @@ router.post("/", subscriptionController.createSubscription);
  *       400:
  *         description: Bad request
  */
-router.put("/:id/addMovie", subscriptionController.addMovieToSubscription);
+router.put("/by-member/:memberId/addMovie", subscriptionController.addMovieToSubscription);
 
 /**
  * @swagger

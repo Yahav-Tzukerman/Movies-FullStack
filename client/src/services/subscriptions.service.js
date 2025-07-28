@@ -14,10 +14,14 @@ class SubscriptionsService {
     });
   }
 
-  addMovieToSubscription(id, movieData, token) {
-    return axios.put(`${SUBSCRIPTIONS}/${id}/addMovie`, movieData, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
+  addMovieToSubscriptionByMember(memberId, movieData, token) {
+    return axios.put(
+      `${SUBSCRIPTIONS}/by-member/${memberId}/addMovie`,
+      movieData,
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
   }
 
   deleteSubscription(id, token) {

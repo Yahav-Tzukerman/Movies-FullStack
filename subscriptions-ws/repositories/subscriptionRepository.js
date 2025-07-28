@@ -12,12 +12,13 @@ const createSubscription = async (subscriptionData) => {
   return await subscription.save();
 };
 
-const addMovieToSubscription = async (subscriptionId, movieEntry) => {
-  return await Subscription.findByIdAndUpdate(
-    subscriptionId,
-    { $push: { movies: movieEntry } },
-    { new: true }
-  );
+const subscribeToMovie = async (memberId, movieEntry) => {
+  const subscription = await getSubscriptionByMemberId(memberId);
+  if (!subscription) {
+    throw new Error(`No subscription found for member with ID ${memberId}`);
+  }
+  subscription.movies.push(movieEntry);
+  return await subscription.save();
 };
 
 const deleteSubscription = async (id) => {
@@ -37,7 +38,7 @@ const getSubscriptionByMemberId = async (memberId) => {
 module.exports = {
   getAllSubscriptions,
   createSubscription,
-  addMovieToSubscription,
+  subscribeToMovie,
   deleteSubscription,
   getSubscriptionById,
   getSubscriptionByMemberId,

@@ -45,12 +45,14 @@ const MemberModal = ({ open, handleClose, editMember, onSave }) => {
     }
   }, [editMember, open]);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setForm((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+  const handleNameChange = (e) => {
+    setForm((prev) => ({ ...prev, name: e.target.value }));
+  };
+  const handleEmailChange = (e) => {
+    setForm((prev) => ({ ...prev, email: e.target.value }));
+  };
+  const handleCityChange = (e) => {
+    setForm((prev) => ({ ...prev, city: e.target.value }));
   };
 
   const handleSubmit = async (e) => {
@@ -86,38 +88,34 @@ const MemberModal = ({ open, handleClose, editMember, onSave }) => {
           <DialogContent
             sx={{ mt: 1, display: "flex", flexDirection: "column", gap: 2 }}
           >
-            <AppInput
-              type="text"
-              placeholder="Name"
-              name="name"
-              value={form.name}
-              onChange={handleChange}
-              error={errors.includes("Name is required.")}
-              errorMessage={<span>Name is required.</span>}
-              instructions={"Name is required."}
-              fullWidth
-            />
+            <Box sx={{ mt: 1 }}>  
+              <AppInput
+                type="text"
+                placeholder="Name"
+                value={form.name}
+                onChange={handleNameChange}
+                error={errors.includes("Name is required.")}
+                errorMessage={<span>Name is required.</span>}
+                instructions={"Name is required."}
+              />
+            </Box>
             <AppInput
               type="email"
               placeholder="Email"
-              name="email"
               value={form.email}
-              onChange={handleChange}
+              onChange={handleEmailChange}
               error={errors.includes("Email is required.")}
               errorMessage={<span>Email is required.</span>}
               instructions={"Email is required."}
-              fullWidth
             />
             <AppInput
               type="text"
               placeholder="City"
-              name="city"
               value={form.city}
-              onChange={handleChange}
+              onChange={handleCityChange}
               error={errors.includes("City is required.")}
               errorMessage={<span>City is required.</span>}
               instructions={"City is required."}
-              fullWidth
             />
             {errors.length > 0 && (
               <Box sx={{ mt: 1 }}>

@@ -22,7 +22,7 @@ const createSubscription = async (req, res) => {
 const addMovieToSubscription = async (req, res) => {
   try {
     const updatedSubscription = await subscriptionService.addMovieToSubscription(
-      req.params.id,
+      req.params.memberId,
       req.body
     );
     res.json(updatedSubscription);
@@ -30,6 +30,7 @@ const addMovieToSubscription = async (req, res) => {
     res.status(400).json({ message: err.message });
   }
 };
+
 
 const deleteSubscription = async (req, res) => {
   try {

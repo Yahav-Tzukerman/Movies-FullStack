@@ -19,20 +19,20 @@ const createSubscription = async (subscriptionData) => {
   return response.data;
 };
 
-const addMovieToSubscription = async (subscriptionId, movieEntry) => {
-  if (!subscriptionId || !movieEntry) {
-    throw new AppError("Subscription ID and movie entry are required.", 400);
+const addMovieToSubscription = async (memberId, movieEntry) => {
+  if (!memberId || !movieEntry) {
+    throw new AppError("Member ID and movie entry are required.", 400);
   }
   if (!movieEntry.movieId || !movieEntry.date) {
     throw new AppError("Movie entry must include movieId and date.", 400);
   }
   const errors = validateSubscription({
-    memberId: subscriptionId,
+    memberId,
     movies: [movieEntry],
   });
   if (errors.length) throw new AppError("Validation error", 400, errors);
   const response = await subscriptionRepository.addMovieToSubscription(
-    subscriptionId,
+    memberId,
     movieEntry
   );
   return response.data;

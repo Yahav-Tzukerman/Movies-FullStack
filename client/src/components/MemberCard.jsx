@@ -23,6 +23,8 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import AddIcon from "@mui/icons-material/Add";
 import appTheme from "../styles/theme";
 import { useSelector } from "react-redux";
+import AppComboBox from "./common/AppComboBox";
+import AppInput from "./common/AppInput";
 
 const MemberCard = ({
   member,
@@ -32,6 +34,8 @@ const MemberCard = ({
   onSubscribe,
   canSubscribe,
 }) => {
+  const { user } = useSelector((state) => state.auth);
+  const permissions = user?.permissions || [];
   const app = useSelector((state) => state.app);
   const theme = app.darkMode ? appTheme.dark : appTheme.light;
   const [addOpen, setAddOpen] = useState(false);
@@ -39,7 +43,6 @@ const MemberCard = ({
   const [selectedDate, setSelectedDate] = useState("");
   const watchedMovieIds = member.movies.map((m) => m.movieId);
 
-  // רק סרטים שעדיין לא נצפו
   const unwatchedMovies = allMovies.filter(
     (movie) => !watchedMovieIds.includes(movie._id)
   );
@@ -68,14 +71,17 @@ const MemberCard = ({
         "&:hover": { boxShadow: 7, transform: "scale(1.035)" },
       }}
     >
-      <CardContent sx={{ width: "100%" }}>
+      <CardContent sx={{ width: "100%", color: theme.colors.textLight }}>
         <Box textAlign="center">
           <Avatar sx={{ bgcolor: "primary.main", width: 48, height: 48, mx: "auto", mb: 1 }}>
             {member.name[0]?.toUpperCase() || "M"}
           </Avatar>
           <Typography variant="h6">{member.name}</Typography>
-          <Typography variant="body2" color="text.secondary">
-            {member.email} | {member.city}
+          <Typography variant="body2" color={theme.colors.textMuted} fontWeight="bold">
+            Email: {member.email}
+          </Typography>
+          <Typography variant="body2" color={theme.colors.textMuted} fontWeight="bold">
+            City: {member.city}
           </Typography>
         </Box>
 
@@ -84,6 +90,7 @@ const MemberCard = ({
         <Typography variant="subtitle2" fontWeight={700} sx={{ color: theme.colors.textLight }}>
           Watched Movies:
         </Typography>
+
         <List dense sx={{ pt: 0, pb: 0 }}>
           {member.movies.length > 0 ? member.movies.map((movie, i) => (
             <ListItem
@@ -100,8 +107,8 @@ const MemberCard = ({
               </span>
             </ListItem>
           )) : (
-            <Typography variant="body2" color="text.secondary">
-              No movies yet.
+            <Typography variant="body2" color={theme.colors.textMuted} textAlign="center" sx={{ width: "100%", mt: 1 }}>
+              No movies subscribed yet.
             </Typography>
           )}
         </List>
@@ -111,7 +118,7 @@ const MemberCard = ({
           <>
             <Button
               startIcon={<AddIcon />}
-              sx={{ mt: 1 }}
+              sx={{ mt: 2, color: theme.colors.textLight, background: theme.colors.background, fontSize: "0.8rem", p: 1 }}
               onClick={() => setAddOpen((prev) => !prev)}
               size="small"
             >
@@ -119,9 +126,15 @@ const MemberCard = ({
             </Button>
             <Collapse in={addOpen}>
               <Box sx={{ mt: 1 }}>
-                <FormControl fullWidth sx={{ mb: 1 }}>
-                  <InputLabel>Movie</InputLabel>
+                <FormControl fullWidth sx={{ mb: 1, mt: 1 }}>
+                  <InputLabel sx={{ color: theme.colors.textLight }}>Movie</InputLabel>
                   <Select
+                    sx={{
+                      background: theme.colors.inputBackground,
+                      color: theme.colors.textLight,
+                      border: "1px solid " + theme.colors.inputBorder,
+                      borderRadius: theme.input.borderRadius,
+                    }}
                     value={selectedMovieId}
                     label="Movie"
                     onChange={(e) => setSelectedMovieId(e.target.value)}
@@ -136,23 +149,22 @@ const MemberCard = ({
                     ))}
                   </Select>
                 </FormControl>
-                <input
-                  type="date"
-                  value={selectedDate}
-                  onChange={(e) => setSelectedDate(e.target.value)}
-                  style={{
-                    background: theme.colors.inputBackground,
-                    color: theme.colors.textLight,
-                    border: "1px solid " + theme.colors.inputBorder,
-                    borderRadius: theme.input.borderRadius,
-                    padding: 6,
-                    fontFamily: theme.fontFamily,
-                    width: "100%",
-                  }}
-                />
+
+                <Box sx={{ mt: 1 }}>
+                  <AppInput
+                    type="date"
+                    placeholder={"Subscription Date"}
+                    value={selectedDate}
+                    onChange={(e) => setSelectedDate(e.target.value)}
+                    error={!selectedDate}
+                    errorMessage={<span>Date is required.</span>}
+                    instructions={"Select a date for the subscription."}
+                    fullWidth
+                  />
+                </Box>
                 <Button
                   onClick={handleSubscribe}
-                  sx={{ mt: 1 }}
+                  sx={{ mt: 1, background: theme.colors.primary }}
                   disabled={!selectedMovieId || !selectedDate}
                   variant="contained"
                   size="small"
@@ -165,16 +177,21 @@ const MemberCard = ({
         )}
 
         <Box display="flex" justifyContent="center" gap={1} mt={2}>
+          { permissions?.includes("Update Subscriptions") && (
+            
           <Tooltip title="Edit">
             <IconButton color="primary" onClick={() => onEdit(member)}>
               <EditIcon />
             </IconButton>
           </Tooltip>
+          )}
+          { permissions?.includes("Delete Subscriptions") && (
           <Tooltip title="Delete">
             <IconButton color="error" onClick={() => onDelete(member._id)}>
               <DeleteIcon />
             </IconButton>
           </Tooltip>
+          )}
         </Box>
       </CardContent>
     </Card>

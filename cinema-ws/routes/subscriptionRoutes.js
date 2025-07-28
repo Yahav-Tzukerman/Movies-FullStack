@@ -70,7 +70,7 @@ router.post(
 
 /**
  * @swagger
- * /api/subscriptions/{id}:
+ * /api/subscriptions/by-member/{memberId}/addMovie:
  *   put:
  *     summary: Add a movie to a subscription
  *     tags: [Subscriptions]
@@ -78,11 +78,11 @@ router.post(
  *       - bearerAuth: []
  *     parameters:
  *       - in: path
- *         name: id
+ *         name: memberId
  *         schema:
  *           type: string
  *         required: true
- *         description: Subscription ID
+ *         description: Member ID
  *     requestBody:
  *       required: true
  *       content:
@@ -100,11 +100,12 @@ router.post(
  *         description: Movie added to subscription
  */
 router.put(
-  "/:id/addMovie",
+  "/by-member/:memberId/addMovie",
   authMiddleware,
-  permissionsMiddleware("Update Subscription"),
+  permissionsMiddleware("Update Subscriptions"),
   subscriptionController.addMovieToSubscription
 );
+
 
 /**
  * @swagger
