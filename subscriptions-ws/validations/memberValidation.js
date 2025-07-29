@@ -1,6 +1,6 @@
 // validations/memberValidation.js
 
-const NAME_REGEX = /^[A-Za-z\u0590-\u05FF\s'-]{2,40}$/; // אותיות בעברית/אנגלית, רווחים, גרשיים, 2-40
+const NAME_REGEX = /^[\p{L}\s.'\-]{2,40}$/u;
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 function validateMember({ name, email, city }) {

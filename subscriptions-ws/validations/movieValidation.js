@@ -1,6 +1,6 @@
 // validations/movieValidation.js
 
-const NAME_REGEX = /^[A-Za-z0-9\u0590-\u05FF\s:,'"!?-]{1,100}$/; // שם סרט: תווים מותרים, 1-100
+const NAME_REGEX = /^[\p{L}\p{N}\s:,'"!?&.\-\(\)\[\]/]{1,100}$/u;
 const URL_REGEX = /^(https?:\/\/.*\.(?:png|jpg|jpeg|gif|webp))$/i;
 
 function validateMovie({ name, genres, image, premiered }) {

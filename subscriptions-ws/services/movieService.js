@@ -1,6 +1,7 @@
 // services/movieService.js
 const { validateMovie } = require("../validations/movieValidation");
 const movieRepository = require("../repositories/movieRepository");
+const subscriptionRepository = require("../repositories/subscriptionRepository");
 const AppError = require("../exceptions/AppError");
 
 const getAllMovies = async () => {
@@ -30,6 +31,7 @@ const deleteMovie = async (id) => {
   const existingMovie = await movieRepository.getMovieById(id);
   if (!existingMovie) throw new AppError(`Movie with ID ${id} not found`, 404);
 
+  await subscriptionRepository.removeMovieFromAllSubscriptions(id);
   return await movieRepository.deleteMovie(id);
 };
 

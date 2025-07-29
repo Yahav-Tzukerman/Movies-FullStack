@@ -25,6 +25,17 @@ const deleteSubscription = async (id) => {
   return await Subscription.findByIdAndDelete(id);
 };
 
+const deleteSubscriptionByMemberId = async (memberId) => {
+  return await Subscription.deleteMany({ memberId });
+};
+
+const removeMovieFromAllSubscriptions = async (movieId) => {
+  return await Subscription.updateMany(
+    {},
+    { $pull: { movies: { movieId } } }
+  );
+};
+
 const getSubscriptionById = async (id) => {
   return await Subscription.findById(id)
     .populate("memberId")
@@ -42,4 +53,6 @@ module.exports = {
   deleteSubscription,
   getSubscriptionById,
   getSubscriptionByMemberId,
+  deleteSubscriptionByMemberId,
+  removeMovieFromAllSubscriptions
 };

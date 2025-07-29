@@ -1,7 +1,31 @@
-// services/dataInitService.js
 const axios = require('axios');
 const memberService = require('./memberService');
 const movieService = require('./movieService');
+
+const cleanString = (str, min = 2, max = 40) => {
+  if (!str || typeof str !== "string") return "Unknown";
+  const trimmed = str.trim();
+  if (trimmed.length < min) return "Unknown";
+  if (trimmed.length > max) return trimmed.slice(0, max);
+  return trimmed;
+};
+
+const cleanEmail = (email) => {
+  if (!email || typeof email !== "string" || !email.includes("@")) return "unknown@email.com";
+  return email.trim().toLowerCase();
+};
+
+const cleanGenres = (genres) => {
+  if (!Array.isArray(genres) || genres.length === 0) return ["Unknown"];
+  return genres.map((g) => g || "Unknown");
+};
+
+const cleanDate = (date) => {
+  if (!date || isNaN(Date.parse(date))) return "2000-01-01";
+  return date;
+};
+
+const cleanImage = (img) => img || "https://via.placeholder.com/150x220?text=No+Image";
 
 const initMembers = async () => {
   const existingMembers = await memberService.getAllMembers();
@@ -10,11 +34,16 @@ const initMembers = async () => {
     const { data } = await axios.get('https://jsonplaceholder.typicode.com/users');
 
     for (const user of data) {
-      await memberService.createMember({
-        name: user.name,
-        email: user.email,
-        city: user.address.city
-      });
+      try {
+        await memberService.createMember({
+          name: cleanString(user.name),
+          email: cleanEmail(user.email),
+          city: cleanString(user.address?.city)
+        });
+      } catch (e) {
+        console.error("❌ Failed to create member:", user.name, "-", e.message);
+        continue;
+      }
     }
     console.log('✅ Members initialized');
   } else {
@@ -29,12 +58,17 @@ const initMovies = async () => {
     const { data } = await axios.get('https://api.tvmaze.com/shows');
 
     for (const show of data) {
-      await movieService.createMovie({
-        name: show.name,
-        genres: show.genres,
-        image: show.image?.medium,
-        premiered: show.premiered
-      });
+      try {
+        await movieService.createMovie({
+          name: cleanString(show.name, 1, 100),
+          genres: cleanGenres(show.genres),
+          image: cleanImage(show.image?.medium),
+          premiered: cleanDate(show.premiered)
+        });
+      } catch (e) {
+        console.error("❌ Failed to create movie:", show.name, "-", e.message);
+        continue;
+      }
     }
     console.log('✅ Movies initialized');
   } else {

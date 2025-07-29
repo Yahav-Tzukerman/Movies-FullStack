@@ -1,6 +1,7 @@
 // services/memberService.js
 const { validateMember } = require("../validations/memberValidation");
 const memberRepository = require("../repositories/memberRepository");
+const subscriptionRepository = require("../repositories/subscriptionRepository");
 const AppError = require("../exceptions/AppError");
 
 const getAllMembers = async () => {
@@ -43,6 +44,8 @@ const deleteMember = async (id) => {
   if (!id) throw new AppError("Member ID is required for deletion", 400);
   const member = await memberRepository.getMemberById(id);
   if (!member) throw new AppError(`Member with ID ${id} not found`, 404);
+
+  await subscriptionRepository.deleteSubscriptionByMemberId(id);
   return await memberRepository.deleteMember(id);
 };
 

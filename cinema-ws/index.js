@@ -74,7 +74,7 @@ app.listen(PORT, () => {
     console.log("Running in DEVELOPMENT mode");
   } else {
     console.log(
-      `🚀 app is listening at https://factorymanager-6t60.onrender.com`
+      `🚀 app is listening at https://cinema-ws-sibl.onrender.com`
     );
     console.log("Running in PRODUCTION mode");
   }
