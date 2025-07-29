@@ -44,13 +44,11 @@ const MoviesPage = () => {
   const handleCloseModal = () => setModalOpen(false);
 
   const handleDelete = (id) => {
-    if (window.confirm("Are you sure you want to delete this movie?")) {
-      deleteMovie(id)
-        .then(reload())
-        .catch((err) =>
-          setError(err.response?.data?.message || "Failed to delete movie")
-        );
-    }
+    deleteMovie(id)
+      .then(reload())
+      .catch((err) =>
+        setError(err.response?.data?.message || "Failed to delete movie")
+      );
   };
 
   const handleModalSave = () => {

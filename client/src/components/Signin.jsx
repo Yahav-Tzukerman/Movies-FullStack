@@ -20,8 +20,8 @@ import AppInput from "./common/AppInput";
 import appTheme from "../styles/theme";
 import AppButton from "./common/AppButton";
 import AppCheckbox from "./common/AppCheckBox";
-import AppErrorPopup from "./common/AppErrorPopApp";
 import authService from "../services/auth.service";
+import AppErrorPopApp from "./common/AppErrorPopApp";
 
 const SignInComp = () => {
   const app = useSelector((state) => state.app);
@@ -44,12 +44,10 @@ const SignInComp = () => {
     try {
       if (!validateUsername(username)) {
         setErrors((prev) => [...prev, "username"]);
-        createErrorMessage();
         return;
       }
       if (!validatePassword(password)) {
         setErrors((prev) => [...prev, "password"]);
-        createErrorMessage();
         return;
       }
       const response = await authService.login(username, password);
@@ -122,7 +120,7 @@ const SignInComp = () => {
       }}
     >
       <Box sx={{ width: "100%" }}>
-        <AppErrorPopup
+        <AppErrorPopApp
           show={popup.show}
           label={popup.message}
           handleClose={handleCloseErrorPopup}

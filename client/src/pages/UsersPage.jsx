@@ -37,15 +37,13 @@ const UsersPage = () => {
   const handleCloseModal = () => setModalOpen(false);
 
   const handleDelete = (id) => {
-    if (window.confirm("Are you sure you want to delete this user?")) {
-      deleteUser(id)
-        .then(() => {
-          reload();
-        })
-        .catch((err) => {
-          setError(err.response?.data?.message || "Failed to delete user");
-        });
-    }
+    deleteUser(id)
+      .then(() => {
+        reload();
+      })
+      .catch((err) => {
+        setError(err.response?.data?.message || "Failed to delete user");
+      });
   };
 
   const handleModalSave = () => {
@@ -119,7 +117,7 @@ const UsersPage = () => {
           <CircularProgress size={64} color="primary" thickness={5} />
         </Box>
       )}
-      <AppErrorPopApp message={error} onClose={() => setError("")} />
+      <AppErrorPopApp message={error} onClose={() => setError("")} show={Boolean(error)} />
     </Box>
   );
 };

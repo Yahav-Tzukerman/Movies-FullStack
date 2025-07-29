@@ -46,13 +46,11 @@ const SubscriptionsPage = () => {
   const handleCloseModal = () => setModalOpen(false);
 
   const handleDelete = (id) => {
-    if (window.confirm("Are you sure you want to delete this member?")) {
-      deleteMember(id)
-        .then(reload())
-        .catch((err) =>
-          setError(err.response?.data?.message || "Failed to delete member")
-        );
-    }
+    deleteMember(id)
+      .then(reload())
+      .catch((err) =>
+        setError(err.response?.data?.message || "Failed to delete member")
+      );
   };
 
   const handleModalSave = () => {

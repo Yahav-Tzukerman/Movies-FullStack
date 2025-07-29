@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Card,
   CardContent,
@@ -7,26 +7,38 @@ import {
   Box,
   IconButton,
   Tooltip,
+  Chip,
+  Dialog,
+  DialogActions,
+  DialogTitle,
+  Button,
 } from "@mui/material";
 import { useSelector } from "react-redux";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import appTheme from "../styles/theme";
-import { PERMISSIONS } from "../utils/userValidation";
 
 const UserCard = ({ user, onEdit, onDelete }) => {
   const { user: auth } = useSelector((state) => state.auth);
   const permissions = auth?.permissions || [];
   const app = useSelector((state) => state.app);
   const theme = app.darkMode ? appTheme.dark : appTheme.light;
+  const [deleteOpen, setDeleteOpen] = useState(false);
+
+  const handleDeleteClick = () => setDeleteOpen(true);
+  const handleCloseDelete = () => setDeleteOpen(false);
+  const handleConfirmDelete = () => {
+    setDeleteOpen(false);
+    onDelete(user.id);
+  };
 
   return (
     <Card
       sx={{
         borderRadius: 3,
         boxShadow: 3,
-        minHeight: 350,
-        width: 330,
+        minHeight: 360,
+        width: 340,
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
@@ -34,7 +46,7 @@ const UserCard = ({ user, onEdit, onDelete }) => {
         background: theme.colors.innerCardBackground,
         "&:hover": {
           boxShadow: 7,
-          transform: "scale(1.035)",
+          transform: "scale(1.045)",
         },
       }}
     >
@@ -50,7 +62,7 @@ const UserCard = ({ user, onEdit, onDelete }) => {
       >
         <Avatar
           sx={{
-            bgcolor: "primary.main",
+            bgcolor: theme.colors.primary,
             width: 48,
             height: 48,
             mx: "auto",
@@ -82,16 +94,39 @@ const UserCard = ({ user, onEdit, onDelete }) => {
           mb={1}
           sx={{ color: theme.colors.textLight }}
         >
-          Session Timeout: {user.sessionTimeOut} minutes
+          Session Timeout: {+user.sessionTimeOut / 60} minutes
         </Typography>
-        <Typography
-          variant="body2"
-          color="text.secondary"
-          mb={1}
-          sx={{ color: theme.colors.textLight }}
+        <Box
+          sx={{
+            mt: 1,
+            mb: 1,
+            display: "flex",
+            flexWrap: "wrap",
+            gap: 0.5,
+            maxHeight: 110,
+            overflowY: "auto",
+            justifyContent: "center",
+          }}
         >
-          PERMISSIONS: {user.permissions.join(", ") || "None"}
-        </Typography>
+          {user.permissions?.length > 0 ? (
+            user.permissions.map((perm, idx) => (
+              <Chip
+                key={idx}
+                label={perm}
+                size="small"
+                sx={{
+                  bgcolor: theme.colors.cardBackground,
+                  color: theme.colors.textLight,
+                  border: `1px solid ${theme.colors.inputBorder}`,
+                  fontWeight: 500,
+                  fontSize: 12,
+                }}
+              />
+            ))
+          ) : (
+            <Chip label="No Permissions" size="small" color="warning" />
+          )}
+        </Box>        
         <Box display="flex" justifyContent="center" gap={1} mt={2}>
           {permissions.includes("Update Users") && (
             <Tooltip title="Edit">
@@ -102,13 +137,26 @@ const UserCard = ({ user, onEdit, onDelete }) => {
           )}
           {permissions.includes("Delete Users") && (
             <Tooltip title="Delete">
-              <IconButton color="error" onClick={() => onDelete(user.id)}>
+              <IconButton color="error" onClick={handleDeleteClick}>
                 <DeleteIcon />
               </IconButton>
             </Tooltip>
           )}
         </Box>
       </CardContent>
+      <Dialog open={deleteOpen} onClose={handleCloseDelete} sx={{ backdropFilter: "blur(4px)", color: theme.colors.innerCardBackground }}>
+        <DialogTitle>
+          Are you sure you want to delete user "{user.firstName} {user.lastName}"?
+        </DialogTitle>
+        <DialogActions>
+          <Button onClick={handleCloseDelete} variant="outlined">
+            Cancel
+          </Button>
+          <Button onClick={handleConfirmDelete} color="error" variant="contained">
+            Delete
+          </Button>
+        </DialogActions>
+      </Dialog>      
     </Card>
   );
 };

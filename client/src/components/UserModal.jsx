@@ -4,16 +4,7 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
-  TextField,
-  Button,
   Box,
-  Chip,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  OutlinedInput,
-  FormHelperText,
   Typography,
 } from "@mui/material";
 import { useUsers } from "../hooks/useUsers";
@@ -23,18 +14,14 @@ import { useSelector } from "react-redux";
 import AppInput from "./common/AppInput";
 import AppComboBox from "./common/AppComboBox";
 import AppButton from "./common/AppButton";
-import App from "../App";
+import AppErrorPopApp from "./common/AppErrorPopApp";
 
 const UserModal = ({ open, handleClose, editUser, onSave }) => {
   const app = useSelector((state) => state.app);
-  // const user = useSelector((state) => state.auth.user);
-  // const token = user?.token;
   const theme = app.darkMode ? appTheme.dark : appTheme.light;
   const isEdit = Boolean(editUser);
-  const {
-    createUser,
-    updateUser,
-  } = useUsers();
+  const [formErrors, setFormErrors] = useState([]);
+  const { createUser, updateUser, error: dbError } = useUsers();
 
   const [form, setForm] = useState({
     firstName: "",
@@ -43,18 +30,23 @@ const UserModal = ({ open, handleClose, editUser, onSave }) => {
     userName: "",
     permissions: [],
   });
-  const [errors, setErrors] = useState([]);
+
+  const [popup, setPopup] = useState({
+    show: false,
+    message: "",
+    type: "error",
+  });
 
   useEffect(() => {
     if (editUser) {
       setForm({
         firstName: editUser.firstName || "",
         lastName: editUser.lastName || "",
-        sessionTimeOut: editUser.sessionTimeOut || 30,
+        sessionTimeOut: +editUser.sessionTimeOut / 60 || 30,
         userName: editUser.userName || "",
         permissions: editUser.permissions || [],
       });
-      setErrors([]);
+      setFormErrors([]);
     } else {
       setForm({
         firstName: "",
@@ -63,11 +55,17 @@ const UserModal = ({ open, handleClose, editUser, onSave }) => {
         userName: "",
         permissions: [],
       });
-      setErrors([]);
+      setFormErrors([]);
     }
   }, [editUser, open]);
 
   const handleFirstNameChange = (e) => {
+    const value = e.target.value;
+    if (!value || value.length < 2 || value.length > 30) {
+      setFormErrors((prev) => [...prev, "firstName"]);
+    } else {
+      setFormErrors((prev) => prev.filter((err) => err !== "firstName"));
+    }
     setForm((prev) => ({ ...prev, firstName: e.target.value }));
   };
   const handleLastNameChange = (e) => {
@@ -79,9 +77,9 @@ const UserModal = ({ open, handleClose, editUser, onSave }) => {
   const handleSessionTimeoutChange = (e) => {
     const value = e.target.value;
     if (value < 1 || value > 1440) {
-      setErrors((prev) => [...prev, "sessionTimeOut"]);
+      setFormErrors((prev) => [...prev, "sessionTimeOut"]);
     } else {
-      setErrors((prev) => prev.filter((err) => err !== "sessionTimeOut"));
+      setFormErrors((prev) => prev.filter((err) => err !== "sessionTimeOut"));
     }
     setForm((prev) => ({ ...prev, sessionTimeOut: value }));
   };
@@ -92,7 +90,6 @@ const UserModal = ({ open, handleClose, editUser, onSave }) => {
         ? event.target.value.split(",")
         : event.target.value;
 
-    // Auto-check "View Subscriptions" if one of Create/Update/Delete Subscriptions is selected
     if (
       newPerms.some((p) =>
         [
@@ -106,7 +103,6 @@ const UserModal = ({ open, handleClose, editUser, onSave }) => {
       newPerms = [...newPerms, "View Subscriptions"];
     }
 
-    // Auto-check "View Movies" if one of Create/Update/Delete Movies is selected
     if (
       newPerms.some((p) =>
         ["Create Movies", "Update Movies", "Delete Movies"].includes(p)
@@ -122,32 +118,53 @@ const UserModal = ({ open, handleClose, editUser, onSave }) => {
     }));
   };
 
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     const errs = validateUserFull(form);
     if (errs.length) {
-      setErrors(errs);
+      setFormErrors(errs);
+      setPopup({
+        show: true,
+        message: errs.join(" "),
+        type: "error",
+      });
       return;
     }
     try {
+      let success;
       if (isEdit) {
-        await updateUser(editUser.id, form);
+        success = await updateUser(editUser.id, form);
       } else {
-        await createUser(form);
+        success = await createUser(form);
       }
-      setErrors([]);
-      onSave();
+      if (!success) throw new Error("Failed to save user");
+      setPopup({
+        show: true,
+        message: isEdit ? "User updated successfully!" : "User created successfully!",
+        type: "success",
+      });
+      setTimeout(() => {
+        setPopup({ show: false, message: "" });
+        onSave();
+      }, 1200);
     } catch (err) {
-      setErrors([
-        err.response?.data?.message || "Failed to save user, check your data.",
-      ]);
+      console.error("User save error:", err);
     }
+  };
+
+  const handleCloseErrorPopup = () => {
+    setPopup({ ...popup, show: false, message: "" });
   };
 
   return (
     <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
       <Box sx={{ background: theme.colors.cardBackground }}>
+        <AppErrorPopApp 
+          show={popup.show || Boolean(dbError)}
+          label={popup.message || dbError}
+          handleClose={handleCloseErrorPopup}
+          variant={popup.type}
+        />
         <form onSubmit={handleSubmit} autoComplete="off">
           <DialogTitle sx={{ color: theme.colors.textLight, fontSize: 24 }}>
             {isEdit ? `Edit User - ${form.userName}` : "Add New User"}
@@ -161,8 +178,8 @@ const UserModal = ({ open, handleClose, editUser, onSave }) => {
                 placeholder="First Name"
                 value={form.firstName}
                 onChange={handleFirstNameChange}
-                error={errors.includes("firstName")}
-                errorMessage={<span>First name is required.</span>}
+                error={formErrors.includes("firstName")}
+                errorMessage={<span>Invalid first name: letters only, 2-30 chars (Hebrew/English).</span>}
                 instructions={"First name is required."}
               />
             </Box>
@@ -171,7 +188,7 @@ const UserModal = ({ open, handleClose, editUser, onSave }) => {
               placeholder="Last Name"
               value={form.lastName}
               onChange={handleLastNameChange}
-              error={errors.includes("lastName")}
+              error={formErrors.includes("lastName")}
               errorMessage={<span>Last name is required.</span>}
               instructions={"Last name is required."}
             />
@@ -180,7 +197,7 @@ const UserModal = ({ open, handleClose, editUser, onSave }) => {
               placeholder="Username"
               value={form.userName}
               onChange={handleUsernameChange}
-              error={errors.includes("userName")}
+              error={formErrors.includes("userName")}
               errorMessage={<span>Username is required.</span>}
               instructions={"Username is required."}
               fullWidth
@@ -190,7 +207,7 @@ const UserModal = ({ open, handleClose, editUser, onSave }) => {
               placeholder="Session Timeout (minutes)"
               value={form.sessionTimeOut}
               onChange={handleSessionTimeoutChange}
-              error={errors.includes("sessionTimeOut")}
+              error={formErrors.includes("sessionTimeOut")}
               errorMessage={
                 <span>Session timeout must be between 1 and 1440 minutes.</span>
               }
@@ -219,21 +236,12 @@ const UserModal = ({ open, handleClose, editUser, onSave }) => {
               options={PERMISSIONS}
               value={form.permissions}
               onChange={handlePermissionsChange}
-              error={errors.includes("permissions")}
+              error={formErrors.includes("permissions")}
               errorMessage={<span>At least one permission is required.</span>}
               instructions={"Select at least one permission."}
               multiple
               fullWidth
             />
-            {errors.length > 0 && (
-              <Box sx={{ mt: 1 }}>
-                {errors.map((err, idx) => (
-                  <Box key={idx} color="error.main" fontSize={14}>
-                    {err}
-                  </Box>
-                ))}
-              </Box>
-            )}
           </DialogContent>
           <DialogActions>
             <AppButton

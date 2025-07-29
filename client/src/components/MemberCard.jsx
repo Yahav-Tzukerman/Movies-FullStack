@@ -17,6 +17,9 @@ import {
   Select,
   InputLabel,
   FormControl,
+  Dialog,
+  DialogActions,
+  DialogTitle
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -43,8 +46,16 @@ const MemberCard = ({
   const [selectedMovieId, setSelectedMovieId] = useState("");
   const [selectedDate, setSelectedDate] = useState("");
   const watchedMovieIds = member.movies.map((m) => m.movieId);
+  const [deleteOpen, setDeleteOpen] = useState(false);
   const navigate = useNavigate();
 
+  const handleDeleteClick = () => setDeleteOpen(true);
+  const handleCloseDelete = () => setDeleteOpen(false);
+  const handleConfirmDelete = () => {
+    setDeleteOpen(false);
+    onDelete(user.id);
+  };
+  
   const unwatchedMovies = allMovies.filter(
     (movie) => !watchedMovieIds.includes(movie._id)
   );
@@ -196,13 +207,26 @@ const MemberCard = ({
           )}
           { permissions?.includes("Delete Subscriptions") && (
           <Tooltip title="Delete">
-            <IconButton color="error" onClick={() => onDelete(member._id)}>
+            <IconButton color="error" onClick={handleDeleteClick}>
               <DeleteIcon />
             </IconButton>
           </Tooltip>
           )}
         </Box>
       </CardContent>
+      <Dialog open={deleteOpen} onClose={handleCloseDelete} sx={{ backdropFilter: "blur(4px)", color: theme.colors.innerCardBackground }}>
+        <DialogTitle>
+          Are you sure you want to delete member "{member.name}"?
+        </DialogTitle>
+        <DialogActions>
+          <Button onClick={handleCloseDelete} variant="outlined">
+            Cancel
+          </Button>
+          <Button onClick={handleConfirmDelete} color="error" variant="contained">
+            Delete
+          </Button>
+        </DialogActions>
+      </Dialog>  
     </Card>
   );
 };

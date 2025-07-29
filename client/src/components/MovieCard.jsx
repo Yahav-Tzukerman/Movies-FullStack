@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Card,
   CardContent,
@@ -11,7 +11,11 @@ import {
   Divider,
   List,
   ListItem,
-  Link
+  Link,
+  Dialog,
+  DialogActions,
+  DialogTitle,
+  Button
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -24,7 +28,15 @@ const MovieCard = ({ movie, onEdit, onDelete }) => {
   const permissions = user?.permissions || [];
   const app = useSelector((state) => state.app);
   const theme = app.darkMode ? appTheme.dark : appTheme.light;
+  const [deleteOpen, setDeleteOpen] = useState(false);
   const navigate = useNavigate();
+
+  const handleDeleteClick = () => setDeleteOpen(true);
+  const handleCloseDelete = () => setDeleteOpen(false);
+  const handleConfirmDelete = () => {
+    setDeleteOpen(false);
+    onDelete(movie.id);
+  };
 
   return (
     <Card
@@ -102,14 +114,14 @@ const MovieCard = ({ movie, onEdit, onDelete }) => {
                   {sub.memberName}
                 </Link>
                 </Box>
-                <Box sx={{ fontSize: 12, color: theme.colors.textSecondary }}>
+                <Box sx={{ fontSize: 12, color: theme.colors.textLight }}>
                   {sub.date ? new Date(sub.date).toLocaleDateString("he-IL") : ""}
                 </Box>
               </ListItem>
             ))}
           </List>
         ) : (
-          <Typography variant="body2" color="text.secondary">
+          <Typography variant="body2" sx={{ textAlign: "center", color: theme.colors.textLight }}>
             No subscribers yet.
           </Typography>
         )}
@@ -123,13 +135,26 @@ const MovieCard = ({ movie, onEdit, onDelete }) => {
           )}
           {permissions.includes("Delete Movies") && (
             <Tooltip title="Delete">
-              <IconButton color="error" onClick={() => onDelete(movie._id)}>
+              <IconButton color="error" onClick={handleDeleteClick}>
                 <DeleteIcon />
               </IconButton>
             </Tooltip>
           )}
         </Box>
       </CardContent>
+      <Dialog open={deleteOpen} onClose={handleCloseDelete} sx={{ backdropFilter: "blur(4px)", color: theme.colors.innerCardBackground }}>
+        <DialogTitle>
+          Are you sure you want to delete movie "{movie.name}"?
+        </DialogTitle>
+        <DialogActions>
+          <Button onClick={handleCloseDelete} variant="outlined">
+            Cancel
+          </Button>
+          <Button onClick={handleConfirmDelete} color="error" variant="contained">
+            Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Card>
   );
 };
