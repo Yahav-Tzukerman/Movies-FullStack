@@ -33,9 +33,7 @@ export function useUsers() {
       reload();
       return true;
     } catch (err) {
-      setError(
-        err.response?.data?.message || "Failed to create user"
-      );
+      setError(err.response?.data?.message || "Failed to create user");
       return false;
     } finally {
       setActionLoading(false);
@@ -50,9 +48,7 @@ export function useUsers() {
       reload();
       return true;
     } catch (err) {
-      setError(
-        err.response?.data?.message || "Failed to update user"
-      );
+      setError(err.response?.data?.message || "Failed to update user");
       return false;
     } finally {
       setActionLoading(false);
@@ -67,9 +63,7 @@ export function useUsers() {
       reload();
       return true;
     } catch (err) {
-      setError(
-        err.response?.data?.message || "Failed to delete user"
-      );
+      setError(err.response?.data?.message || "Failed to delete user");
       return false;
     } finally {
       setActionLoading(false);
@@ -80,6 +74,7 @@ export function useUsers() {
     users,
     loading,
     error,
+    setError,
     reload,
     createUser,
     updateUser,

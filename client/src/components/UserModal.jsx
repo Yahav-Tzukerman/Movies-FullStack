@@ -21,7 +21,12 @@ const UserModal = ({ open, handleClose, editUser, onSave }) => {
   const theme = app.darkMode ? appTheme.dark : appTheme.light;
   const isEdit = Boolean(editUser);
   const [formErrors, setFormErrors] = useState([]);
-  const { createUser, updateUser, error: dbError } = useUsers();
+  const {
+    createUser,
+    updateUser,
+    error: dbError,
+    setError: setDbError,
+  } = useUsers();
 
   const [form, setForm] = useState({
     firstName: "",
@@ -69,9 +74,26 @@ const UserModal = ({ open, handleClose, editUser, onSave }) => {
     setForm((prev) => ({ ...prev, firstName: e.target.value }));
   };
   const handleLastNameChange = (e) => {
+    const value = e.target.value;
+    if (!value || value.length < 2 || value.length > 30) {
+      setFormErrors((prev) => [...prev, "lastName"]);
+    } else {
+      setFormErrors((prev) => prev.filter((err) => err !== "lastName"));
+    }
     setForm((prev) => ({ ...prev, lastName: e.target.value }));
   };
   const handleUsernameChange = (e) => {
+    const value = e.target.value;
+    if (!value) {
+      setFormErrors((prev) => [...prev, "userName"]);
+    } else {
+      setFormErrors((prev) => prev.filter((err) => err !== "userName"));
+    }
+    if (value.length < 3 || value.length > 30) {
+      setFormErrors((prev) => [...prev, "userName"]);
+    } else {
+      setFormErrors((prev) => prev.filter((err) => err !== "userName"));
+    }
     setForm((prev) => ({ ...prev, userName: e.target.value }));
   };
   const handleSessionTimeoutChange = (e) => {
@@ -112,6 +134,13 @@ const UserModal = ({ open, handleClose, editUser, onSave }) => {
       newPerms = [...newPerms, "View Movies"];
     }
 
+    console.log(event.target.value.length);
+    if (event.target.value.length === 0) {
+      setFormErrors((prev) => [...prev, "permissions"]);
+    } else {
+      setFormErrors((prev) => prev.filter((err) => err !== "permissions"));
+    }
+
     setForm((prev) => ({
       ...prev,
       permissions: newPerms,
@@ -130,36 +159,37 @@ const UserModal = ({ open, handleClose, editUser, onSave }) => {
       });
       return;
     }
-    try {
-      let success;
-      if (isEdit) {
-        success = await updateUser(editUser.id, form);
-      } else {
-        success = await createUser(form);
-      }
-      if (!success) throw new Error("Failed to save user");
-      setPopup({
-        show: true,
-        message: isEdit ? "User updated successfully!" : "User created successfully!",
-        type: "success",
-      });
-      setTimeout(() => {
-        setPopup({ show: false, message: "" });
-        onSave();
-      }, 1200);
-    } catch (err) {
-      console.error("User save error:", err);
+
+    if (isEdit) {
+      await updateUser(editUser.id, form);
+    } else {
+      await createUser(form);
     }
+
+    setPopup({
+      show: true,
+      message: isEdit
+        ? "User updated successfully!"
+        : "User created successfully!",
+      type: "success",
+    });
+
+    // Close the modal after a short delay to allow the user to see the message
+    setTimeout(() => {
+      setPopup({ show: false, message: "" });
+      onSave();
+    }, 1200);
   };
 
   const handleCloseErrorPopup = () => {
     setPopup({ ...popup, show: false, message: "" });
+    setDbError("");
   };
 
   return (
     <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
       <Box sx={{ background: theme.colors.cardBackground }}>
-        <AppErrorPopApp 
+        <AppErrorPopApp
           show={popup.show || Boolean(dbError)}
           label={popup.message || dbError}
           handleClose={handleCloseErrorPopup}
@@ -179,7 +209,9 @@ const UserModal = ({ open, handleClose, editUser, onSave }) => {
                 value={form.firstName}
                 onChange={handleFirstNameChange}
                 error={formErrors.includes("firstName")}
-                errorMessage={<span>Invalid first name: letters only, 2-30 chars (Hebrew/English).</span>}
+                errorMessage={
+                  <span>Invalid first name: letters only, 2-30 chars.</span>
+                }
                 instructions={"First name is required."}
               />
             </Box>
@@ -189,7 +221,9 @@ const UserModal = ({ open, handleClose, editUser, onSave }) => {
               value={form.lastName}
               onChange={handleLastNameChange}
               error={formErrors.includes("lastName")}
-              errorMessage={<span>Last name is required.</span>}
+              errorMessage={
+                <span>Invalid last name: letters only, 2-30 chars.</span>
+              }
               instructions={"Last name is required."}
             />
             <AppInput
@@ -198,7 +232,9 @@ const UserModal = ({ open, handleClose, editUser, onSave }) => {
               value={form.userName}
               onChange={handleUsernameChange}
               error={formErrors.includes("userName")}
-              errorMessage={<span>Username is required.</span>}
+              errorMessage={
+                <span>Invalid username: letters only, 3-30 chars.</span>
+              }
               instructions={"Username is required."}
               fullWidth
             />

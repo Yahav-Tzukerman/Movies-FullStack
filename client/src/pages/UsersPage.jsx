@@ -18,7 +18,6 @@ const UsersPage = () => {
   const [search, setSearch] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
   const [editUser, setEditUser] = useState(null);
-  const [error, setError] = useState("");
 
   const filteredUsers = users.filter(
     (u) =>
@@ -34,20 +33,19 @@ const UsersPage = () => {
     setEditUser(user);
     setModalOpen(true);
   };
-  const handleCloseModal = () => setModalOpen(false);
+  const handleCloseModal = () => {
+    setModalOpen(false);
+  };
 
   const handleDelete = (id) => {
-    deleteUser(id)
-      .then(() => {
-        reload();
-      })
-      .catch((err) => {
-        setError(err.response?.data?.message || "Failed to delete user");
-      });
+    deleteUser(id).then(() => {
+      reload();
+    });
   };
 
   const handleModalSave = () => {
     setModalOpen(false);
+    setEditUser(null);
     reload();
   };
 
@@ -117,7 +115,6 @@ const UsersPage = () => {
           <CircularProgress size={64} color="primary" thickness={5} />
         </Box>
       )}
-      <AppErrorPopApp message={error} onClose={() => setError("")} show={Boolean(error)} />
     </Box>
   );
 };
