@@ -15,16 +15,5 @@
       "Update Users",
       "Delete Users"
     ]
-  },
-  {
-    "id": "7bdad049-494f-467c-b243-0a370b584fd5",
-    "permissions": [
-      "Create Subscriptions",
-      "View Subscriptions",
-      "Update Subscriptions",
-      "View Movies",
-      "Create Movies",
-      "Update Movies"
-    ]
   }
 ]
