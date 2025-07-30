@@ -17,6 +17,7 @@ import { useSelector } from "react-redux";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import appTheme from "../styles/theme";
+import AppButton from "./common/AppButton";
 
 const UserCard = ({ user, onEdit, onDelete }) => {
   const { user: auth } = useSelector((state) => state.auth);
@@ -128,14 +129,14 @@ const UserCard = ({ user, onEdit, onDelete }) => {
           )}
         </Box>        
         <Box display="flex" justifyContent="center" gap={1} mt={2}>
-          {permissions.includes("Update Users") && (
+          {user?.userName !== "admin" && permissions.includes("Update Users") && (
             <Tooltip title="Edit">
               <IconButton color="primary" onClick={() => onEdit(user)}>
                 <EditIcon />
               </IconButton>
             </Tooltip>
           )}
-          {permissions.includes("Delete Users") && (
+          {user?.userName !== "admin" && permissions.includes("Delete Users") && (
             <Tooltip title="Delete">
               <IconButton color="error" onClick={handleDeleteClick}>
                 <DeleteIcon />
@@ -144,17 +145,35 @@ const UserCard = ({ user, onEdit, onDelete }) => {
           )}
         </Box>
       </CardContent>
-      <Dialog open={deleteOpen} onClose={handleCloseDelete} sx={{ backdropFilter: "blur(4px)", color: theme.colors.innerCardBackground }}>
+      <Dialog
+        open={deleteOpen}
+        onClose={handleCloseDelete}
+        sx={{
+          backdropFilter: "blur(4px)",
+          color: theme.colors.innerCardBackground,
+          "& .MuiPaper-root": {
+            background: theme.colors.innerCardBackground,
+            color: theme.colors.textLight,
+          },
+        }}
+      >
         <DialogTitle>
           Are you sure you want to delete user "{user.firstName} {user.lastName}"?
         </DialogTitle>
         <DialogActions>
-          <Button onClick={handleCloseDelete} variant="outlined">
-            Cancel
-          </Button>
-          <Button onClick={handleConfirmDelete} color="error" variant="contained">
-            Delete
-          </Button>
+          <AppButton
+            onClick={handleCloseDelete}
+            variant="secondary"
+            label="Cancel"
+            size={"sm"}
+          />
+          <AppButton
+            variant="error"
+            label="Delete"
+            onClick={handleConfirmDelete}
+            size={"sm"}
+            color="error"
+          />
         </DialogActions>
       </Dialog>      
     </Card>

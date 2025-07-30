@@ -11,10 +11,6 @@ export const PERMISSIONS = [
   "Create Movies",
   "Update Movies",
   "Delete Movies",
-  "View Users",
-  "Create Users",
-  "Update Users",
-  "Delete Users",
 ];
 
 export function validateUserData({ firstName, lastName, sessionTimeOut }) {

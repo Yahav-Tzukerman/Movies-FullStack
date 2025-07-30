@@ -39,7 +39,7 @@ const UserModal = ({ open, handleClose, editUser, onSave }) => {
   const [popup, setPopup] = useState({
     show: false,
     message: "",
-    type: "error",
+    type: "",
   });
 
   useEffect(() => {
@@ -134,7 +134,6 @@ const UserModal = ({ open, handleClose, editUser, onSave }) => {
       newPerms = [...newPerms, "View Movies"];
     }
 
-    console.log(event.target.value.length);
     if (event.target.value.length === 0) {
       setFormErrors((prev) => [...prev, "permissions"]);
     } else {
@@ -160,25 +159,27 @@ const UserModal = ({ open, handleClose, editUser, onSave }) => {
       return;
     }
 
+    let isSaveValid;
     if (isEdit) {
-      await updateUser(editUser.id, form);
+      isSaveValid = await updateUser(editUser.id, form);
     } else {
-      await createUser(form);
+      isSaveValid = await createUser(form);
     }
 
-    setPopup({
-      show: true,
-      message: isEdit
-        ? "User updated successfully!"
-        : "User created successfully!",
-      type: "success",
-    });
+    if (isSaveValid) {
+      setPopup({
+        show: true,
+        message: isEdit
+          ? "User updated successfully!"
+          : "User created successfully!",
+        type: "success",
+      });
 
-    // Close the modal after a short delay to allow the user to see the message
-    setTimeout(() => {
-      setPopup({ show: false, message: "" });
-      onSave();
-    }, 1200);
+      setTimeout(() => {
+        setPopup({ ...popup, show: false });
+        onSave();
+      }, 1200);
+    }
   };
 
   const handleCloseErrorPopup = () => {

@@ -14,10 +14,16 @@ const UsersPage = () => {
   const { user } = useSelector((state) => state.auth);
   const app = useSelector((state) => state.app);
   const theme = app.darkMode ? appTheme.dark : appTheme.light;
-  const { users, loading, reload, deleteUser } = useUsers();
+  const { users, loading, reload, deleteUser, error: dbError, setError: setDbError } = useUsers();
   const [search, setSearch] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
   const [editUser, setEditUser] = useState(null);
+
+  const [popup, setPopup] = useState({
+    show: false,
+    message: "",
+    type: "error",
+  });
 
   const filteredUsers = users.filter(
     (u) =>
@@ -40,6 +46,17 @@ const UsersPage = () => {
   const handleDelete = (id) => {
     deleteUser(id).then(() => {
       reload();
+      setPopup({
+        show: true,
+        message: "User deleted successfully",
+        type: "success",
+      });
+    }).catch((error) => {
+      setPopup({
+        show: true,
+        message: `Error deleting user: ${error.message}`,
+        type: "error",
+      });
     });
   };
 
@@ -49,8 +66,19 @@ const UsersPage = () => {
     reload();
   };
 
+  const handleCloseErrorPopup = () => {
+    setPopup({ ...popup, show: false, message: "" });
+    setDbError("");
+  };
+
   return (
     <Box maxWidth={1200} mx="auto" mt={5}>
+      <AppErrorPopApp
+          show={popup.show || Boolean(dbError)}
+          label={popup.message || dbError}
+          handleClose={handleCloseErrorPopup}
+          variant={popup.type}
+        />
       <Paper
         elevation={4}
         sx={{ p: 4, background: theme.colors.cardBackground }}

@@ -44,9 +44,11 @@ const getUserById = async (id) => {
 };
 
 const createUser = async (userData, password, permissions = []) => {
+  if (!isNaN(+userData.sessionTimeOut)) {
+    userData.sessionTimeOut = +userData.sessionTimeOut * 60;
+  }
   const errors = validateUserData(userData);
   errors.push(...validatePermissions(permissions));
-  console.log(errors);
 
   if (errors.length) throw new AppError(errors, 400);
 
@@ -64,7 +66,7 @@ const createUser = async (userData, password, permissions = []) => {
     firstName: userData.firstName,
     lastName: userData.lastName,
     createdDate: userData.createdDate || now,
-    sessionTimeOut: +userData.sessionTimeOut * 60 || 30,
+    sessionTimeOut: +userData.sessionTimeOut || 1800,
   };
   await userJsonRepository.addUser(jsonUser);
 
@@ -121,7 +123,8 @@ const updateUser = async (id, updateData, newPermissions) => {
   });
   if (errors.length) throw new AppError("Validation error", 400, errors);
 
-  await userJsonRepository.updateUser(id, updateData);
+  const { userName, ...jsonUpdateData } = updateData;
+  await userJsonRepository.updateUser(id, jsonUpdateData);
 
   if( updateData.userName) {
     const dbUser = await userDBRepository.findUserByUserId(id);

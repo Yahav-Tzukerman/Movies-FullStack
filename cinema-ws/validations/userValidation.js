@@ -32,8 +32,8 @@ function validateUserData({ firstName, lastName, sessionTimeOut }) {
   if (
     sessionTimeOut === undefined ||
     isNaN(sessionTimeOut) ||
-    sessionTimeOut < 1 ||
-    sessionTimeOut > 1440
+    sessionTimeOut < 60 ||
+    sessionTimeOut > 86400
   ) {
     errors.push("Invalid sessionTimeOut: must be 1-1440 minutes");
   }

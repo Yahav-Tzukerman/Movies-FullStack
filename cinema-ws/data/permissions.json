@@ -17,12 +17,25 @@
     ]
   },
   {
-    "id": "2caa8866-0add-4cde-a142-e001899bf568",
+    "id": "4fea0067-5b22-41a5-9fc2-26c524984232",
     "permissions": [
-      "Delete Subscriptions",
+      "Create Movies",
+      "View Movies",
+      "Update Movies",
+      "Update Subscriptions",
+      "View Subscriptions",
+      "Create Subscriptions"
+    ]
+  },
+  {
+    "id": "b4e9c382-e2b3-4684-94b7-dac8a9cbd12c",
+    "permissions": [
+      "Create Subscriptions",
       "View Subscriptions",
       "Create Movies",
-      "View Movies"
+      "View Movies",
+      "Update Movies",
+      "Delete Subscriptions"
     ]
   }
 ]
