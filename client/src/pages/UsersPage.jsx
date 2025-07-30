@@ -14,7 +14,15 @@ const UsersPage = () => {
   const { user } = useSelector((state) => state.auth);
   const app = useSelector((state) => state.app);
   const theme = app.darkMode ? appTheme.dark : appTheme.light;
-  const { users, loading, reload, deleteUser, error: dbError, setError: setDbError } = useUsers();
+  const {
+    users,
+    loading,
+    reload,
+    deleteUser,
+    error: dbError,
+    setError: setDbError,
+  } = useUsers();
+
   const [search, setSearch] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
   const [editUser, setEditUser] = useState(null);
@@ -44,20 +52,24 @@ const UsersPage = () => {
   };
 
   const handleDelete = (id) => {
-    deleteUser(id).then(() => {
-      reload();
-      setPopup({
-        show: true,
-        message: "User deleted successfully",
-        type: "success",
+    deleteUser(id)
+      .then((isDeleted) => {
+        reload();
+        setPopup({
+          show: true,
+          message: isDeleted
+            ? "User deleted successfully"
+            : "Failed to delete user",
+          type: isDeleted ? "success" : "error",
+        });
+      })
+      .catch((error) => {
+        setPopup({
+          show: true,
+          message: `Error deleting user: ${error.message}`,
+          type: "error",
+        });
       });
-    }).catch((error) => {
-      setPopup({
-        show: true,
-        message: `Error deleting user: ${error.message}`,
-        type: "error",
-      });
-    });
   };
 
   const handleModalSave = () => {
@@ -74,11 +86,11 @@ const UsersPage = () => {
   return (
     <Box maxWidth={1200} mx="auto" mt={5}>
       <AppErrorPopApp
-          show={popup.show || Boolean(dbError)}
-          label={popup.message || dbError}
-          handleClose={handleCloseErrorPopup}
-          variant={popup.type}
-        />
+        show={popup.show || Boolean(dbError)}
+        label={popup.message || dbError}
+        handleClose={handleCloseErrorPopup}
+        variant={popup.type}
+      />
       <Paper
         elevation={4}
         sx={{ p: 4, background: theme.colors.cardBackground }}

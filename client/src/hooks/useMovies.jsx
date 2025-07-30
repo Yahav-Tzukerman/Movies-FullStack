@@ -74,6 +74,7 @@ export function useMovies() {
     movies,
     loading,
     error,
+    setError,
     reload,
     createMovie,
     updateMovie,

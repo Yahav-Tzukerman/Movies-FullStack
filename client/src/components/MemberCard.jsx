@@ -19,16 +19,16 @@ import {
   FormControl,
   Dialog,
   DialogActions,
-  DialogTitle
+  DialogTitle,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import AddIcon from "@mui/icons-material/Add";
 import appTheme from "../styles/theme";
 import { useSelector } from "react-redux";
-import AppComboBox from "./common/AppComboBox";
 import AppInput from "./common/AppInput";
 import { useNavigate } from "react-router-dom";
+import AppButton from "./common/AppButton";
 
 const MemberCard = ({
   member,
@@ -53,9 +53,9 @@ const MemberCard = ({
   const handleCloseDelete = () => setDeleteOpen(false);
   const handleConfirmDelete = () => {
     setDeleteOpen(false);
-    onDelete(user.id);
+    onDelete(member._id);
   };
-  
+
   const unwatchedMovies = allMovies.filter(
     (movie) => !watchedMovieIds.includes(movie._id)
   );
@@ -86,48 +86,85 @@ const MemberCard = ({
     >
       <CardContent sx={{ width: "100%", color: theme.colors.textLight }}>
         <Box textAlign="center">
-          <Avatar sx={{ bgcolor: "primary.main", width: 48, height: 48, mx: "auto", mb: 1 }}>
+          <Avatar
+            sx={{
+              bgcolor: "primary.main",
+              width: 48,
+              height: 48,
+              mx: "auto",
+              mb: 1,
+            }}
+          >
             {member.name[0]?.toUpperCase() || "M"}
           </Avatar>
           <Typography variant="h6">{member.name}</Typography>
-          <Typography variant="body2" color={theme.colors.textMuted} fontWeight="bold">
+          <Typography
+            variant="body2"
+            color={theme.colors.textMuted}
+            fontWeight="bold"
+          >
             Email: {member.email}
           </Typography>
-          <Typography variant="body2" color={theme.colors.textMuted} fontWeight="bold">
+          <Typography
+            variant="body2"
+            color={theme.colors.textMuted}
+            fontWeight="bold"
+          >
             City: {member.city}
           </Typography>
         </Box>
 
         <Divider sx={{ my: 2 }} />
 
-        <Typography variant="subtitle2" fontWeight={700} sx={{ color: theme.colors.textLight }}>
+        <Typography
+          variant="subtitle2"
+          fontWeight={700}
+          sx={{ color: theme.colors.textLight }}
+        >
           Watched Movies:
         </Typography>
 
         <List dense sx={{ pt: 0, pb: 0 }}>
-          {member.movies.length > 0 ? member.movies.map((movie, i) => (
-            <ListItem
-              key={movie.movieId || i}
-              sx={{
-                px: 0.5, py: 0, display: "flex", justifyContent: "space-between", fontSize: 14,
-              }}
-            >
-              <Link
-                component="button"
-                underline="hover"
-                color={theme.colors.textLight}
-                onClick={() =>
-                  navigate(`/movies?search=${encodeURIComponent(movie.movieName)}`)
-                }
+          {member.movies.length > 0 ? (
+            member.movies.map((movie, i) => (
+              <ListItem
+                key={movie.movieId || i}
+                sx={{
+                  px: 0.5,
+                  py: 0,
+                  display: "flex",
+                  justifyContent: "space-between",
+                  fontSize: 14,
+                }}
               >
-                {movie.movieName}
-              </Link>
-              <span style={{ fontSize: 12, color: theme.colors.textSecondary }}>
-                {movie.date ? new Date(movie.date).toLocaleDateString("he-IL") : ""}
-              </span>
-            </ListItem>
-          )) : (
-            <Typography variant="body2" color={theme.colors.textMuted} textAlign="center" sx={{ width: "100%", mt: 1 }}>
+                <Link
+                  component="button"
+                  underline="hover"
+                  color={theme.colors.textLight}
+                  onClick={() =>
+                    navigate(
+                      `/movies?search=${encodeURIComponent(movie.movieName)}`
+                    )
+                  }
+                >
+                  {movie.movieName}
+                </Link>
+                <span
+                  style={{ fontSize: 12, color: theme.colors.textSecondary }}
+                >
+                  {movie.date
+                    ? new Date(movie.date).toLocaleDateString("he-IL")
+                    : ""}
+                </span>
+              </ListItem>
+            ))
+          ) : (
+            <Typography
+              variant="body2"
+              color={theme.colors.textMuted}
+              textAlign="center"
+              sx={{ width: "100%", mt: 1 }}
+            >
               No movies subscribed yet.
             </Typography>
           )}
@@ -138,7 +175,13 @@ const MemberCard = ({
           <>
             <Button
               startIcon={<AddIcon />}
-              sx={{ mt: 2, color: theme.colors.textLight, background: theme.colors.background, fontSize: "0.8rem", p: 1 }}
+              sx={{
+                mt: 2,
+                color: theme.colors.textLight,
+                background: theme.colors.background,
+                fontSize: "0.8rem",
+                p: 1,
+              }}
               onClick={() => setAddOpen((prev) => !prev)}
               size="small"
             >
@@ -147,7 +190,9 @@ const MemberCard = ({
             <Collapse in={addOpen}>
               <Box sx={{ mt: 1 }}>
                 <FormControl fullWidth sx={{ mb: 1, mt: 1 }}>
-                  <InputLabel sx={{ color: theme.colors.textLight }}>Movie</InputLabel>
+                  <InputLabel sx={{ color: theme.colors.textLight }}>
+                    Movie
+                  </InputLabel>
                   <Select
                     sx={{
                       background: theme.colors.inputBackground,
@@ -197,36 +242,53 @@ const MemberCard = ({
         )}
 
         <Box display="flex" justifyContent="center" gap={1} mt={2}>
-          { permissions?.includes("Update Subscriptions") && (
-            
-          <Tooltip title="Edit">
-            <IconButton color="primary" onClick={() => onEdit(member)}>
-              <EditIcon />
-            </IconButton>
-          </Tooltip>
+          {permissions?.includes("Update Subscriptions") && (
+            <Tooltip title="Edit">
+              <IconButton color="primary" onClick={() => onEdit(member)}>
+                <EditIcon />
+              </IconButton>
+            </Tooltip>
           )}
-          { permissions?.includes("Delete Subscriptions") && (
-          <Tooltip title="Delete">
-            <IconButton color="error" onClick={handleDeleteClick}>
-              <DeleteIcon />
-            </IconButton>
-          </Tooltip>
+          {permissions?.includes("Delete Subscriptions") && (
+            <Tooltip title="Delete">
+              <IconButton color="error" onClick={handleDeleteClick}>
+                <DeleteIcon />
+              </IconButton>
+            </Tooltip>
           )}
         </Box>
       </CardContent>
-      <Dialog open={deleteOpen} onClose={handleCloseDelete} sx={{ backdropFilter: "blur(4px)", color: theme.colors.innerCardBackground }}>
+      <Dialog
+        open={deleteOpen}
+        onClose={handleCloseDelete}
+        sx={{
+          backdropFilter: "blur(4px)",
+          color: theme.colors.innerCardBackground,
+          "& .MuiPaper-root": {
+            background: theme.colors.innerCardBackground,
+            color: theme.colors.textLight,
+          },
+        }}
+      >
         <DialogTitle>
           Are you sure you want to delete member "{member.name}"?
         </DialogTitle>
         <DialogActions>
-          <Button onClick={handleCloseDelete} variant="outlined">
-            Cancel
-          </Button>
-          <Button onClick={handleConfirmDelete} color="error" variant="contained">
-            Delete
-          </Button>
+          <AppButton
+            onClick={handleCloseDelete}
+            variant="secondary"
+            label="Cancel"
+            size={"sm"}
+          />
+          <AppButton
+            variant="error"
+            label="Delete"
+            onClick={handleConfirmDelete}
+            size={"sm"}
+            color="error"
+          />
         </DialogActions>
-      </Dialog>  
+      </Dialog>
     </Card>
   );
 };

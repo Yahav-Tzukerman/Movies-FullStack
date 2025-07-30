@@ -15,13 +15,14 @@ import {
   Dialog,
   DialogActions,
   DialogTitle,
-  Button
+  Button,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import appTheme from "../styles/theme";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import AppButton from "./common/AppButton";
 
 const MovieCard = ({ movie, onEdit, onDelete }) => {
   const { user } = useSelector((state) => state.auth);
@@ -35,7 +36,7 @@ const MovieCard = ({ movie, onEdit, onDelete }) => {
   const handleCloseDelete = () => setDeleteOpen(false);
   const handleConfirmDelete = () => {
     setDeleteOpen(false);
-    onDelete(movie.id);
+    onDelete(movie._id);
   };
 
   return (
@@ -60,8 +61,13 @@ const MovieCard = ({ movie, onEdit, onDelete }) => {
         component="img"
         image={movie.image}
         alt={movie.name}
-        height="180"
-        sx={{ objectFit: "cover", borderRadius: 2, mt: 2, width: "95%" }}
+        height="280"
+        sx={{
+          objectFit: "fill",
+          borderRadius: 2,
+          mt: 2,
+          width: "95%",
+        }}
       />
       <CardContent
         sx={{
@@ -81,11 +87,26 @@ const MovieCard = ({ movie, onEdit, onDelete }) => {
         </Typography>
         <Box sx={{ mb: 1 }}>
           {movie.genres.map((genre, i) => (
-            <Chip key={i} label={genre} size="small" sx={{ m: 0.5, backgroundColor: theme.colors.cardBackground, color: theme.colors.textLight, p: 0.5, fontWeight: 700 }} />
+            <Chip
+              key={i}
+              label={genre}
+              size="small"
+              sx={{
+                m: 0.5,
+                backgroundColor: theme.colors.cardBackground,
+                color: theme.colors.textLight,
+                p: 0.5,
+                fontWeight: 700,
+              }}
+            />
           ))}
         </Box>
-                <Divider sx={{ my: 2 }} />
-        <Typography variant="subtitle2" fontWeight={700} sx={{ color: theme.colors.textLight }}>
+        <Divider sx={{ my: 2 }} />
+        <Typography
+          variant="subtitle2"
+          fontWeight={700}
+          sx={{ color: theme.colors.textLight }}
+        >
           Subscribers:
         </Typography>
         {movie.subscribers?.length > 0 ? (
@@ -104,24 +125,33 @@ const MovieCard = ({ movie, onEdit, onDelete }) => {
               >
                 <Box>
                   <Link
-                  component="button"
-                  underline="hover"
-                  color={theme.colors.textLight}
-                  onClick={() =>
-                    navigate(`/subscriptions?search=${encodeURIComponent(sub.memberName)}`)
-                  }
-                >
-                  {sub.memberName}
-                </Link>
+                    component="button"
+                    underline="hover"
+                    color={theme.colors.textLight}
+                    onClick={() =>
+                      navigate(
+                        `/subscriptions?search=${encodeURIComponent(
+                          sub.memberName
+                        )}`
+                      )
+                    }
+                  >
+                    {sub.memberName}
+                  </Link>
                 </Box>
                 <Box sx={{ fontSize: 12, color: theme.colors.textLight }}>
-                  {sub.date ? new Date(sub.date).toLocaleDateString("he-IL") : ""}
+                  {sub.date
+                    ? new Date(sub.date).toLocaleDateString("he-IL")
+                    : ""}
                 </Box>
               </ListItem>
             ))}
           </List>
         ) : (
-          <Typography variant="body2" sx={{ textAlign: "center", color: theme.colors.textLight }}>
+          <Typography
+            variant="body2"
+            sx={{ textAlign: "center", color: theme.colors.textLight }}
+          >
             No subscribers yet.
           </Typography>
         )}
@@ -142,17 +172,35 @@ const MovieCard = ({ movie, onEdit, onDelete }) => {
           )}
         </Box>
       </CardContent>
-      <Dialog open={deleteOpen} onClose={handleCloseDelete} sx={{ backdropFilter: "blur(4px)", color: theme.colors.innerCardBackground }}>
+      <Dialog
+        open={deleteOpen}
+        onClose={handleCloseDelete}
+        sx={{
+          backdropFilter: "blur(4px)",
+          color: theme.colors.innerCardBackground,
+          "& .MuiPaper-root": {
+            background: theme.colors.innerCardBackground,
+            color: theme.colors.textLight,
+          },
+        }}
+      >
         <DialogTitle>
           Are you sure you want to delete movie "{movie.name}"?
         </DialogTitle>
         <DialogActions>
-          <Button onClick={handleCloseDelete} variant="outlined">
-            Cancel
-          </Button>
-          <Button onClick={handleConfirmDelete} color="error" variant="contained">
-            Delete
-          </Button>
+          <AppButton
+            onClick={handleCloseDelete}
+            variant="secondary"
+            label="Cancel"
+            size={"sm"}
+          />
+          <AppButton
+            variant="error"
+            label="Delete"
+            onClick={handleConfirmDelete}
+            size={"sm"}
+            color="error"
+          />
         </DialogActions>
       </Dialog>
     </Card>

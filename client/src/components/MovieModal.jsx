@@ -4,33 +4,50 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
-  Box
+  Box,
 } from "@mui/material";
 import AppInput from "./common/AppInput";
 import AppButton from "./common/AppButton";
 import { useMovies } from "../hooks/useMovies";
+import {
+  GENERES,
+  validateGenres,
+  validateImageUrl,
+  validateMovieFull,
+  validatePremieredDate,
+  validateName,
+} from "../utils/movieValidation";
+import AppErrorPopApp from "./common/AppErrorPopApp";
 import appTheme from "../styles/theme";
 import { useSelector } from "react-redux";
 import AppComboBox from "./common/AppComboBox";
 
-const GENRE_OPTIONS = [
-  "Drama", "Comedy", "Action", "Science-Fiction", "Romance", "Crime", "Thriller",
-  "Adventure", "Horror", "Fantasy", "Family", "Animation", "Mystery", "History", "Music",
-  "Documentary", "War", "Western", "Supernatural", "Other"
-];
+const GENRE_OPTIONS = GENERES;
 
 const MovieModal = ({ open, handleClose, editMovie, onSave }) => {
   const app = useSelector((state) => state.app);
   const theme = app.darkMode ? appTheme.dark : appTheme.light;
-  const { createMovie, updateMovie } = useMovies();
   const isEdit = Boolean(editMovie);
+  const [formErrors, setFormErrors] = useState([]);
+  const {
+    createMovie,
+    updateMovie,
+    error: dbError,
+    setError: setDbError,
+  } = useMovies();
+
   const [form, setForm] = useState({
     name: "",
     genres: [],
     image: "",
     premiered: "",
   });
-  const [errors, setErrors] = useState([]);
+
+  const [popup, setPopup] = useState({
+    show: false,
+    message: "",
+    type: "error",
+  });
 
   useEffect(() => {
     if (editMovie) {
@@ -40,7 +57,7 @@ const MovieModal = ({ open, handleClose, editMovie, onSave }) => {
         image: editMovie.image || "",
         premiered: editMovie.premiered ? editMovie.premiered.slice(0, 10) : "", // yyyy-mm-dd
       });
-      setErrors([]);
+      setFormErrors([]);
     } else {
       setForm({
         name: "",
@@ -48,24 +65,47 @@ const MovieModal = ({ open, handleClose, editMovie, onSave }) => {
         image: "",
         premiered: "",
       });
-      setErrors([]);
+      setFormErrors([]);
     }
   }, [editMovie, open]);
 
-    const handleNameChange = (e) => {
-        setForm((prev) => ({ ...prev, name: e.target.value }));
-    };
+  const handleNameChange = (e) => {
+    const value = e.target.value;
+    if (validateName(value).length) {
+      setFormErrors((prev) => [...prev, "name"]);
+    } else {
+      setFormErrors((prev) => prev.filter((err) => err !== "name"));
+    }
+    setForm((prev) => ({ ...prev, name: value }));
+  };
 
-    const handleImageChange = (e) => {
-        setForm((prev) => ({ ...prev, image: e.target.value }));
-    };
+  const handleImageChange = (e) => {
+    const value = e.target.value;
+    if (validateImageUrl(value).length) {
+      setFormErrors((prev) => [...prev, "image"]);
+    } else {
+      setFormErrors((prev) => prev.filter((err) => err !== "image"));
+    }
+    setForm((prev) => ({ ...prev, image: value }));
+  };
 
-    const handlePremieredChange = (e) => {
-        setForm((prev) => ({ ...prev, premiered: e.target.value }));
-    };
+  const handlePremieredChange = (e) => {
+    const value = e.target.value;
+    if (validatePremieredDate(value).length) {
+      setFormErrors((prev) => [...prev, "premiered"]);
+    } else {
+      setFormErrors((prev) => prev.filter((err) => err !== "premiered"));
+    }
+    setForm((prev) => ({ ...prev, premiered: value }));
+  };
 
   const handleGenresChange = (event) => {
     const { value } = event.target;
+    if (validateGenres(value).length) {
+      setFormErrors((prev) => [...prev, "genres"]);
+    } else {
+      setFormErrors((prev) => prev.filter((err) => err !== "genres"));
+    }
     setForm((prev) => ({
       ...prev,
       genres: typeof value === "string" ? value.split(",") : value,
@@ -74,97 +114,128 @@ const MovieModal = ({ open, handleClose, editMovie, onSave }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    let errs = [];
-    if (!form.name) errs.push("Movie name is required.");
-    if (!form.premiered) errs.push("Premiered date is required.");
-    if (!form.image) errs.push("Image URL is required.");
-    if (!form.genres.length) errs.push("At least one genre is required.");
-    setErrors(errs);
-    if (errs.length) return;
-    try {
-      if (isEdit) {
-        await updateMovie(editMovie._id, form);
-      } else {
-        await createMovie(form);
-      }
-      onSave();
-    } catch (err) {
-      setErrors([
-        err.response?.data?.message || "Failed to save movie, check your data.",
-      ]);
+    const errs = validateMovieFull(form);
+    if (errs.length) {
+      setFormErrors(errs);
+      setPopup({
+        show: true,
+        message: errs.join(" "),
+        type: "error",
+      });
+      return;
     }
+
+    let isSaveValid;
+    if (isEdit) {
+      isSaveValid = await updateMovie(editMovie._id, form);
+    } else {
+      isSaveValid = await createMovie(form);
+    }
+
+    if (isSaveValid) {
+      setPopup({
+        show: true,
+        message: isEdit
+          ? "Movie updated successfully!"
+          : "Movie created successfully!",
+        type: "success",
+      });
+
+      setTimeout(() => {
+        setPopup({ ...popup, show: false });
+        onSave();
+      }, 1200);
+    }
+  };
+
+  const handleCloseErrorPopup = () => {
+    setPopup({ ...popup, show: false, message: "" });
+    setDbError("");
   };
 
   return (
     <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
-        <Box sx={{ background: theme.colors.cardBackground }}>
-            <form onSubmit={handleSubmit} autoComplete="off">
-                <DialogTitle sx={{ color: theme.colors.textLight, fontSize: 24 }}>
-                {isEdit ? "Edit Movie" : "Add New Movie"}
-                </DialogTitle>
-                <DialogContent sx={{ mt: 1, display: "flex", flexDirection: "column", gap: 2 }}>
-                    <Box sx={{ mt: 1 }}>
-                        <AppInput
-                            type="text"
-                            placeholder="Name"
-                            value={form.name}
-                            onChange={handleNameChange}
-                            error={errors.includes("Movie name is required.")}
-                            errorMessage={<span>Movie name is required.</span>}
-                            instructions={"Movie name is required."}
-                        />
-                    </Box>
-                    <AppComboBox
-                        name="Genres"
-                        label="Genres"
-                        options={GENRE_OPTIONS}
-                        value={form.genres}
-                        onChange={handleGenresChange}
-                        error={errors.includes("genres")}
-                        errorMessage={<span>At least one genre is required.</span>}
-                        instructions={"Select at least one genre."}
-                        multiple
-                        fullWidth
-                    />
-                    <AppInput
-                        type="text"
-                        placeholder="Image URL"
-                        value={form.image}
-                        onChange={handleImageChange}
-                        error={errors.includes("Image URL is required.")}
-                        errorMessage={<span>Image URL is required.</span>}
-                        instructions={"Image URL is required."}
-                    />
-                    <AppInput
-                        type="date"
-                        placeholder="Premiered Date"
-                        value={form.premiered}
-                        onChange={handlePremieredChange}
-                        error={errors.includes("Premiered date is required.")}
-                        errorMessage={<span>Premiered date is required.</span>}
-                        instructions={"Premiered date is required."}
-                    />
-                    {errors.length > 0 && (
-                        <Box sx={{ mt: 1 }}>
-                        {errors.map((err, idx) => (
-                            <Box key={idx} color="error.main" fontSize={14}>
-                            {err}
-                            </Box>
-                        ))}
-                        </Box>
-                    )}
-                </DialogContent>
-                <DialogActions>
-                <AppButton onClick={handleClose} variant="muted" label="Cancel" size={"sm"} />
-                <AppButton
-                    variant="primary"
-                    label={isEdit ? "Update Movie" : "Create Movie"}
-                    onClick={handleSubmit}
-                    size={"sm"}
-                />
-                </DialogActions>
-            </form>
-        </Box>
+      <Box sx={{ background: theme.colors.cardBackground }}>
+        <AppErrorPopApp
+          show={popup.show || Boolean(dbError)}
+          label={popup.message || dbError}
+          handleClose={handleCloseErrorPopup}
+          variant={popup.type}
+        />
+        <form onSubmit={handleSubmit} autoComplete="off">
+          <DialogTitle sx={{ color: theme.colors.textLight, fontSize: 24 }}>
+            {isEdit ? "Edit Movie" : "Add New Movie"}
+          </DialogTitle>
+          <DialogContent
+            sx={{ mt: 1, display: "flex", flexDirection: "column", gap: 2 }}
+          >
+            <Box sx={{ mt: 1 }}>
+              <AppInput
+                type="text"
+                placeholder="Name"
+                value={form.name}
+                onChange={handleNameChange}
+                error={formErrors.includes("name")}
+                errorMessage={
+                  <span>
+                    Invalid title: 2-100 chars, letters and numbers only.
+                  </span>
+                }
+                instructions={"Movie name is required."}
+              />
+            </Box>
+            <AppComboBox
+              name="Genres"
+              label="Genres"
+              options={GENRE_OPTIONS}
+              value={form.genres}
+              onChange={handleGenresChange}
+              error={formErrors.includes("genres")}
+              errorMessage={<span>At least one genre is required.</span>}
+              instructions={"Select at least one genre."}
+              multiple
+              fullWidth
+            />
+            <AppInput
+              type="text"
+              placeholder="Image URL"
+              value={form.image}
+              onChange={handleImageChange}
+              error={formErrors.includes("image")}
+              errorMessage={
+                <span>
+                  Invalid image URL: must be a valid image link (png, jpg, jpeg,
+                  gif, webp).
+                </span>
+              }
+              instructions={"Image URL is required."}
+            />
+            <AppInput
+              type="date"
+              placeholder="Premiered Date"
+              value={form.premiered}
+              onChange={handlePremieredChange}
+              error={formErrors.includes("premiered")}
+              errorMessage={<span>Invalid premiered date.</span>}
+              instructions={"Premiered date is required."}
+            />
+          </DialogContent>
+          <DialogActions>
+            <AppButton
+              onClick={handleClose}
+              variant="muted"
+              label="Cancel"
+              size={"sm"}
+            />
+            <AppButton
+              variant="primary"
+              label={isEdit ? "Update Movie" : "Create Movie"}
+              onClick={handleSubmit}
+              size={"sm"}
+            />
+          </DialogActions>
+        </form>
+      </Box>
     </Dialog>
   );
 };

@@ -5,26 +5,43 @@ import {
   DialogContent,
   DialogActions,
   Box,
-  Typography,
 } from "@mui/material";
 import AppInput from "./common/AppInput";
 import AppButton from "./common/AppButton";
 import { useMembers } from "../hooks/useMembers";
 import appTheme from "../styles/theme";
 import { useSelector } from "react-redux";
+import AppErrorPopApp from "./common/AppErrorPopApp";
+import {
+  validateCity,
+  validateEmail,
+  validateMember,
+  validateName,
+} from "../utils/memberValidation";
 
 const MemberModal = ({ open, handleClose, editMember, onSave }) => {
   const app = useSelector((state) => state.app);
   const theme = app.darkMode ? appTheme.dark : appTheme.light;
-  const { createMember, updateMember } = useMembers();
   const isEdit = Boolean(editMember);
+  const [formErrors, setFormErrors] = useState([]);
+  const {
+    createMember,
+    updateMember,
+    error: dbError,
+    setError: setDbError,
+  } = useMembers();
 
   const [form, setForm] = useState({
     name: "",
     email: "",
     city: "",
   });
-  const [errors, setErrors] = useState([]);
+
+  const [popup, setPopup] = useState({
+    show: false,
+    message: "",
+    type: "error",
+  });
 
   useEffect(() => {
     if (editMember) {
@@ -33,53 +50,95 @@ const MemberModal = ({ open, handleClose, editMember, onSave }) => {
         email: editMember.email || "",
         city: editMember.city || "",
       });
-      setErrors([]);
+      setFormErrors([]);
     } else {
       setForm({
         name: "",
         email: "",
         city: "",
       });
-      setErrors([]);
+      setFormErrors([]);
     }
   }, [editMember, open]);
 
   const handleNameChange = (e) => {
+    const value = e.target.value;
+    if (validateName(value).length) {
+      setFormErrors((prev) => [...prev, "name"]);
+    } else {
+      setFormErrors((prev) => prev.filter((err) => err !== "name"));
+    }
     setForm((prev) => ({ ...prev, name: e.target.value }));
   };
   const handleEmailChange = (e) => {
+    const value = e.target.value;
+    if (validateEmail(value).length) {
+      setFormErrors((prev) => [...prev, "email"]);
+    } else {
+      setFormErrors((prev) => prev.filter((err) => err !== "email"));
+    }
     setForm((prev) => ({ ...prev, email: e.target.value }));
   };
   const handleCityChange = (e) => {
+    const value = e.target.value;
+    if (validateCity(value).length) {
+      setFormErrors((prev) => [...prev, "city"]);
+    } else {
+      setFormErrors((prev) => prev.filter((err) => err !== "city"));
+    }
     setForm((prev) => ({ ...prev, city: e.target.value }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    let errs = [];
-    if (!form.name) errs.push("Name is required.");
-    if (!form.email) errs.push("Email is required.");
-    if (!form.city) errs.push("City is required.");
-    setErrors(errs);
-    if (errs.length) return;
-    try {
-      if (isEdit) {
-        await updateMember(editMember._id, form);
-      } else {
-        await createMember(form);
-      }
-      setErrors([]);
-      onSave();
-    } catch (err) {
-      setErrors([
-        err.response?.data?.message || "Failed to save member, check your data.",
-      ]);
+    const errs = validateMember(form);
+    if (errs.length) {
+      setFormErrors(errs);
+      setPopup({
+        show: true,
+        message: errs.join(" "),
+        type: "error",
+      });
+      return;
     }
+
+    let isSaveValid;
+    if (isEdit) {
+      isSaveValid = await updateMember(editMember._id, form);
+    } else {
+      isSaveValid = await createMember(form);
+    }
+
+    if (isSaveValid) {
+      setPopup({
+        show: true,
+        message: isEdit
+          ? "Member updated successfully!"
+          : "Member created successfully!",
+        type: "success",
+      });
+
+      setTimeout(() => {
+        setPopup({ ...popup, show: false });
+        onSave();
+      }, 1200);
+    }
+  };
+
+  const handleCloseErrorPopup = () => {
+    setPopup({ ...popup, show: false, message: "" });
+    setDbError("");
   };
 
   return (
     <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
       <Box sx={{ background: theme.colors.cardBackground }}>
+        <AppErrorPopApp
+          show={popup.show || Boolean(dbError)}
+          label={popup.message || dbError}
+          handleClose={handleCloseErrorPopup}
+          variant={popup.type}
+        />
         <form onSubmit={handleSubmit} autoComplete="off">
           <DialogTitle sx={{ color: theme.colors.textLight, fontSize: 24 }}>
             {isEdit ? `Edit Member - ${form.name}` : "Add New Member"}
@@ -87,14 +146,16 @@ const MemberModal = ({ open, handleClose, editMember, onSave }) => {
           <DialogContent
             sx={{ mt: 1, display: "flex", flexDirection: "column", gap: 2 }}
           >
-            <Box sx={{ mt: 1 }}>  
+            <Box sx={{ mt: 1 }}>
               <AppInput
                 type="text"
                 placeholder="Name"
                 value={form.name}
                 onChange={handleNameChange}
-                error={errors.includes("Name is required.")}
-                errorMessage={<span>Name is required.</span>}
+                error={formErrors.includes("name")}
+                errorMessage={
+                  <span>Invalid name: 2-30 chars, letters only.</span>
+                }
                 instructions={"Name is required."}
               />
             </Box>
@@ -103,8 +164,8 @@ const MemberModal = ({ open, handleClose, editMember, onSave }) => {
               placeholder="Email"
               value={form.email}
               onChange={handleEmailChange}
-              error={errors.includes("Email is required.")}
-              errorMessage={<span>Email is required.</span>}
+              error={formErrors.includes("email")}
+              errorMessage={<span>Invalid email format.</span>}
               instructions={"Email is required."}
             />
             <AppInput
@@ -112,19 +173,12 @@ const MemberModal = ({ open, handleClose, editMember, onSave }) => {
               placeholder="City"
               value={form.city}
               onChange={handleCityChange}
-              error={errors.includes("City is required.")}
-              errorMessage={<span>City is required.</span>}
+              error={formErrors.includes("city")}
+              errorMessage={
+                <span>Invalid city: 2-50 chars, letters only.</span>
+              }
               instructions={"City is required."}
             />
-            {errors.length > 0 && (
-              <Box sx={{ mt: 1 }}>
-                {errors.map((err, idx) => (
-                  <Box key={idx} color="error.main" fontSize={14}>
-                    {err}
-                  </Box>
-                ))}
-              </Box>
-            )}
           </DialogContent>
           <DialogActions>
             <AppButton

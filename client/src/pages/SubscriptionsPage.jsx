@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
-import { Box, Typography, Paper, Grid, CircularProgress  } from "@mui/material";
+import { Box, Typography, Paper, Grid, CircularProgress } from "@mui/material";
 import { useMembers } from "../hooks/useMembers";
 import { useMovies } from "../hooks/useMovies";
 import AddIcon from "@mui/icons-material/PersonAdd";
@@ -16,24 +16,37 @@ const SubscriptionsPage = () => {
   const { user } = useSelector((state) => state.auth);
   const app = useSelector((state) => state.app);
   const theme = app.darkMode ? appTheme.dark : appTheme.light;
-  const { members, loading, reload, deleteMember, addMovieToSubscriptionByMember } = useMembers();
+  const {
+    members,
+    loading,
+    reload,
+    deleteMember,
+    addMovieToSubscriptionByMember,
+    error: dbError,
+    setError: setDbError,
+  } = useMembers();
   const { movies } = useMovies();
   const location = useLocation();
 
   const [search, setSearch] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
   const [editMember, setEditMember] = useState(null);
-  const [error, setError] = useState("");
+
+  const [popup, setPopup] = useState({
+    show: false,
+    message: "",
+    type: "error",
+  });
+
+  const filteredMembers = members.filter((member) =>
+    member.name?.toLowerCase().includes(search.toLowerCase())
+  );
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const q = params.get("search");
     if (q) setSearch(q);
   }, [location.search]);
-
-  const filteredMembers = members.filter((member) =>
-    member.name?.toLowerCase().includes(search.toLowerCase())
-  );
 
   const handleAdd = () => {
     setEditMember(null);
@@ -47,30 +60,77 @@ const SubscriptionsPage = () => {
 
   const handleDelete = (id) => {
     deleteMember(id)
-      .then(reload())
-      .catch((err) =>
-        setError(err.response?.data?.message || "Failed to delete member")
-      );
+      .then((isDeleted) => {
+        reload();
+        setPopup({
+          show: true,
+          message: isDeleted
+            ? "Member deleted successfully"
+            : "Failed to delete member",
+          type: isDeleted ? "success" : "error",
+        });
+      })
+      .catch((err) => {
+        setPopup({
+          show: true,
+          message: `Error deleting member: ${err.message}`,
+          type: "error",
+        });
+      });
   };
 
   const handleModalSave = () => {
     setModalOpen(false);
+    setEditMember(null);
     reload();
   };
 
   const handleSubscribe = (memberId, movieId, date) => {
-    addMovieToSubscriptionByMember(
-      memberId,
-      { movieId, date }
-    )
-      .then(reload())
-      .catch((err) => setError(err.response?.data?.message || "Failed..."));
+    addMovieToSubscriptionByMember(memberId, { movieId, date })
+      .then((isSubscribed) => {
+        reload();
+        setPopup({
+          show: true,
+          message: isSubscribed
+            ? "Member subscribed to movie successfully!"
+            : "Failed to subscribe member to movie.",
+          type: isSubscribed ? "success" : "error",
+        });
+      })
+      .catch((err) => {
+        setPopup({
+          show: true,
+          message:
+            err.response?.data?.message ||
+            "Failed to subscribe member to movie.",
+          type: "error",
+        });
+      });
+  };
+
+  const handleCloseErrorPopup = () => {
+    setPopup({ ...popup, show: false, message: "" });
+    setDbError("");
   };
 
   return (
     <Box maxWidth={1200} mx="auto" mt={5}>
-      <Paper elevation={4} sx={{ p: 4, background: theme.colors.cardBackground }}>
-        <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
+      <AppErrorPopApp
+        show={popup.show || Boolean(dbError)}
+        label={popup.message || dbError}
+        handleClose={handleCloseErrorPopup}
+        variant={popup.type}
+      />
+      <Paper
+        elevation={4}
+        sx={{ p: 4, background: theme.colors.cardBackground }}
+      >
+        <Box
+          display="flex"
+          justifyContent="space-between"
+          alignItems="center"
+          mb={3}
+        >
           <Typography variant="h4" sx={{ color: theme.colors.textLight }}>
             Members & Subscriptions
           </Typography>
@@ -100,7 +160,9 @@ const SubscriptionsPage = () => {
                 onEdit={handleEdit}
                 onDelete={handleDelete}
                 onSubscribe={handleSubscribe}
-                canSubscribe={user?.permissions?.includes("Create Subscriptions")}
+                canSubscribe={user?.permissions?.includes(
+                  "Create Subscriptions"
+                )}
               />
             </Grid>
           ))}
@@ -128,7 +190,6 @@ const SubscriptionsPage = () => {
           <CircularProgress size={64} color="primary" thickness={5} />
         </Box>
       )}
-      <AppErrorPopApp message={error} onClose={() => setError("")} />
     </Box>
   );
 };

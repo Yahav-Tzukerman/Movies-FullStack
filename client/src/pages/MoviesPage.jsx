@@ -13,25 +13,37 @@ import appTheme from "../styles/theme";
 
 const MoviesPage = () => {
   const { user } = useSelector((state) => state.auth);
-  const { movies, loading, reload, deleteMovie } = useMovies();
   const app = useSelector((state) => state.app);
   const theme = app.darkMode ? appTheme.dark : appTheme.light;
   const location = useLocation();
+  const {
+    movies,
+    loading,
+    reload,
+    deleteMovie,
+    error: dbError,
+    setError: setDbError,
+  } = useMovies();
 
   const [search, setSearch] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
   const [editMovie, setEditMovie] = useState(null);
-  const [error, setError] = useState("");
+
+  const [popup, setPopup] = useState({
+    show: false,
+    message: "",
+    type: "error",
+  });
+
+  const filteredMovies = movies.filter((movie) =>
+    movie.name.toLowerCase().includes(search.toLowerCase())
+  );
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const q = params.get("search");
     if (q) setSearch(q);
   }, [location.search]);
-
-  const filteredMovies = movies.filter((movie) =>
-    movie.name.toLowerCase().includes(search.toLowerCase())
-  );
 
   const handleAdd = () => {
     setEditMovie(null);
@@ -45,19 +57,44 @@ const MoviesPage = () => {
 
   const handleDelete = (id) => {
     deleteMovie(id)
-      .then(reload())
-      .catch((err) =>
-        setError(err.response?.data?.message || "Failed to delete movie")
-      );
+      .then((isDeleted) => {
+        reload();
+        setPopup({
+          show: true,
+          message: isDeleted
+            ? "Movie deleted successfully"
+            : "Failed to delete movie",
+          type: isDeleted ? "success" : "error",
+        });
+      })
+      .catch((err) => {
+        setPopup({
+          show: true,
+          message: err.response?.data?.message || "Failed to delete movie",
+          type: "error",
+        });
+      });
   };
 
   const handleModalSave = () => {
     setModalOpen(false);
+    setEditMovie(null);
     reload();
+  };
+
+  const handleCloseErrorPopup = () => {
+    setPopup({ ...popup, show: false, message: "" });
+    setDbError("");
   };
 
   return (
     <Box maxWidth={1200} mx="auto" mt={5} position="relative" minHeight="60vh">
+      <AppErrorPopApp
+        show={popup.show || Boolean(dbError)}
+        label={popup.message || dbError}
+        handleClose={handleCloseErrorPopup}
+        variant={popup.type}
+      />
       <Paper
         elevation={4}
         sx={{ p: 4, background: theme.colors.cardBackground }}
@@ -122,7 +159,6 @@ const MoviesPage = () => {
           <CircularProgress size={64} color="primary" thickness={5} />
         </Box>
       )}
-      <AppErrorPopApp message={error} onClose={() => setError("")} />
     </Box>
   );
 };

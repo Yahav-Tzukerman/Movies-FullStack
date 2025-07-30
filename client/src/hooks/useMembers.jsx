@@ -72,29 +72,34 @@ export function useMembers() {
   };
 
   const addMovieToSubscriptionByMember = async (memberId, movieData) => {
-      setActionLoading(true);
-      setError("");
-      try {
-        await SubscriptionsService.addMovieToSubscriptionByMember(memberId, movieData, token);
-        reload();
-        return true;
-      } catch (err) {
-        setError(err.response?.data?.message || "Failed to subscribe to movie");
-        return false;
-      } finally {
-        setActionLoading(false);
-      }
+    setActionLoading(true);
+    setError("");
+    try {
+      await SubscriptionsService.addMovieToSubscriptionByMember(
+        memberId,
+        movieData,
+        token
+      );
+      reload();
+      return true;
+    } catch (err) {
+      setError(err.response?.data?.message || "Failed to subscribe to movie");
+      return false;
+    } finally {
+      setActionLoading(false);
+    }
   };
 
   return {
     members,
     loading,
     error,
+    setError,
     reload,
     createMember,
     updateMember,
     deleteMember,
     actionLoading,
-    addMovieToSubscriptionByMember
+    addMovieToSubscriptionByMember,
   };
 }

@@ -7,17 +7,10 @@
     "sessionTimeOut": 3600
   },
   {
-    "id": "4fea0067-5b22-41a5-9fc2-26c524984232",
-    "firstName": "Orel",
+    "id": "7bdad049-494f-467c-b243-0a370b584fd5",
+    "firstName": "Yahav",
     "lastName": "Tzukerman",
-    "createdDate": "2025-07-30T05:54:43.486Z",
-    "sessionTimeOut": 1380
-  },
-  {
-    "id": "b4e9c382-e2b3-4684-94b7-dac8a9cbd12c",
-    "firstName": "Kobi",
-    "lastName": "Navon",
-    "createdDate": "2025-07-30T06:51:09.680Z",
-    "sessionTimeOut": 2640
+    "createdDate": "2025-07-30T16:46:09.285Z",
+    "sessionTimeOut": 900
   }
 ]

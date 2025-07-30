@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import AppRouter from "./AppRouter";
 import { Container } from "react-bootstrap";
 import AppNavbar from "./components/common/AppNavbar";
@@ -6,10 +6,12 @@ import { useSelector, useDispatch } from "react-redux";
 import appTheme from "./styles/theme";
 import { useNavigate } from "react-router-dom";
 import { setupAxiosInterceptors } from "./services/axiosConfig";
+import WakeServersSpinner from "./components/common/WakeServersSpinner";
 
 const App = () => {
   const app = useSelector((state) => state.app);
   const theme = app.darkMode ? appTheme.dark : appTheme.light;
+  const [serversReady, setServersReady] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -22,6 +24,9 @@ const App = () => {
     dispatch({ type: "auth/clearUser" });
     navigate("/signin");
   };
+
+  if (!serversReady && import.meta.env.VITE_ENVIRONMENT === "production")
+    return <WakeServersSpinner onDone={() => setServersReady(true)} />;
 
   return (
     <Container

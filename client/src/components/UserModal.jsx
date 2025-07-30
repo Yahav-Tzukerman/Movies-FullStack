@@ -8,7 +8,14 @@ import {
   Typography,
 } from "@mui/material";
 import { useUsers } from "../hooks/useUsers";
-import { PERMISSIONS, validateUserFull } from "../utils/userValidation";
+import {
+  PERMISSIONS,
+  validateName,
+  validatePermissions,
+  validateSessionTimeOut,
+  validateUserFull,
+  validateUserName,
+} from "../utils/userValidation";
 import appTheme from "../styles/theme";
 import { useSelector } from "react-redux";
 import AppInput from "./common/AppInput";
@@ -66,7 +73,7 @@ const UserModal = ({ open, handleClose, editUser, onSave }) => {
 
   const handleFirstNameChange = (e) => {
     const value = e.target.value;
-    if (!value || value.length < 2 || value.length > 30) {
+    if (validateName(value).length) {
       setFormErrors((prev) => [...prev, "firstName"]);
     } else {
       setFormErrors((prev) => prev.filter((err) => err !== "firstName"));
@@ -75,7 +82,7 @@ const UserModal = ({ open, handleClose, editUser, onSave }) => {
   };
   const handleLastNameChange = (e) => {
     const value = e.target.value;
-    if (!value || value.length < 2 || value.length > 30) {
+    if (validateName(value).length) {
       setFormErrors((prev) => [...prev, "lastName"]);
     } else {
       setFormErrors((prev) => prev.filter((err) => err !== "lastName"));
@@ -84,12 +91,7 @@ const UserModal = ({ open, handleClose, editUser, onSave }) => {
   };
   const handleUsernameChange = (e) => {
     const value = e.target.value;
-    if (!value) {
-      setFormErrors((prev) => [...prev, "userName"]);
-    } else {
-      setFormErrors((prev) => prev.filter((err) => err !== "userName"));
-    }
-    if (value.length < 3 || value.length > 30) {
+    if (validateUserName(value).length) {
       setFormErrors((prev) => [...prev, "userName"]);
     } else {
       setFormErrors((prev) => prev.filter((err) => err !== "userName"));
@@ -98,7 +100,7 @@ const UserModal = ({ open, handleClose, editUser, onSave }) => {
   };
   const handleSessionTimeoutChange = (e) => {
     const value = e.target.value;
-    if (value < 1 || value > 1440) {
+    if (validateSessionTimeOut(value).length) {
       setFormErrors((prev) => [...prev, "sessionTimeOut"]);
     } else {
       setFormErrors((prev) => prev.filter((err) => err !== "sessionTimeOut"));
@@ -134,7 +136,7 @@ const UserModal = ({ open, handleClose, editUser, onSave }) => {
       newPerms = [...newPerms, "View Movies"];
     }
 
-    if (event.target.value.length === 0) {
+    if (validatePermissions(newPerms).length) {
       setFormErrors((prev) => [...prev, "permissions"]);
     } else {
       setFormErrors((prev) => prev.filter((err) => err !== "permissions"));

@@ -127,22 +127,24 @@ const UserCard = ({ user, onEdit, onDelete }) => {
           ) : (
             <Chip label="No Permissions" size="small" color="warning" />
           )}
-        </Box>        
+        </Box>
         <Box display="flex" justifyContent="center" gap={1} mt={2}>
-          {user?.userName !== "admin" && permissions.includes("Update Users") && (
-            <Tooltip title="Edit">
-              <IconButton color="primary" onClick={() => onEdit(user)}>
-                <EditIcon />
-              </IconButton>
-            </Tooltip>
-          )}
-          {user?.userName !== "admin" && permissions.includes("Delete Users") && (
-            <Tooltip title="Delete">
-              <IconButton color="error" onClick={handleDeleteClick}>
-                <DeleteIcon />
-              </IconButton>
-            </Tooltip>
-          )}
+          {user?.userName !== "admin" &&
+            permissions.includes("Update Users") && (
+              <Tooltip title="Edit">
+                <IconButton color="primary" onClick={() => onEdit(user)}>
+                  <EditIcon />
+                </IconButton>
+              </Tooltip>
+            )}
+          {user?.userName !== "admin" &&
+            permissions.includes("Delete Users") && (
+              <Tooltip title="Delete">
+                <IconButton color="error" onClick={handleDeleteClick}>
+                  <DeleteIcon />
+                </IconButton>
+              </Tooltip>
+            )}
         </Box>
       </CardContent>
       <Dialog
@@ -158,7 +160,8 @@ const UserCard = ({ user, onEdit, onDelete }) => {
         }}
       >
         <DialogTitle>
-          Are you sure you want to delete user "{user.firstName} {user.lastName}"?
+          Are you sure you want to delete user "{user.firstName} {user.lastName}
+          "?
         </DialogTitle>
         <DialogActions>
           <AppButton
@@ -175,7 +178,7 @@ const UserCard = ({ user, onEdit, onDelete }) => {
             color="error"
           />
         </DialogActions>
-      </Dialog>      
+      </Dialog>
     </Card>
   );
 };
