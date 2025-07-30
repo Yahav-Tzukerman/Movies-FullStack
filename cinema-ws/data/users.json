@@ -5,12 +5,5 @@
     "lastName": "User",
     "createdDate": "2025-07-10T18:44:28.695Z",
     "sessionTimeOut": 3600
-  },
-  {
-    "id": "7bdad049-494f-467c-b243-0a370b584fd5",
-    "firstName": "Yahav",
-    "lastName": "Tzukerman",
-    "createdDate": "2025-07-30T16:46:09.285Z",
-    "sessionTimeOut": 900
   }
 ]
