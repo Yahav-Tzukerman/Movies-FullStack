@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import AppRouter from "./AppRouter";
-import { Container } from "@mui/material";
+import { Container, Paper } from "@mui/material";
 import AppNavbar from "./components/common/AppNavbar";
 import { useSelector, useDispatch } from "react-redux";
 import appTheme from "./styles/theme";
@@ -29,21 +29,23 @@ const App = () => {
     return <WakeServersSpinner onDone={() => setServersReady(true)} />;
 
   return (
-    <Container
-      maxWidth="xl"
-      disableGutters
-      sx={{
-        minHeight: "100vh",
-        background: theme.colors.gradientBackground,
-        color: theme.colors.textLight,
-        fontFamily: theme.colors.fontFamily,
-        px: { xs: 0, sm: 2, md: 3 },
-        boxSizing: "border-box",
-      }}
-    >
+    <Paper sx={{ minHeight: "100vh", background: theme.colors.background }}>
       <AppNavbar handleLogout={handleLogout} />
-      <AppRouter />
-    </Container>
+      <Container
+        maxWidth="xl"
+        disableGutters
+        sx={{
+          minHeight: "100vh",
+          background: theme.colors.gradientBackground,
+          color: theme.colors.textLight,
+          fontFamily: theme.colors.fontFamily,
+          px: { xs: 0, sm: 2, md: 3 },
+          boxSizing: "border-box",
+        }}
+      >
+        <AppRouter />
+      </Container>
+    </Paper>
   );
 };
 
