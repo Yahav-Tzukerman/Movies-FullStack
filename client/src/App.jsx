@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import AppRouter from "./AppRouter";
-import { Container } from "react-bootstrap";
+import { Container } from "@mui/material";
 import AppNavbar from "./components/common/AppNavbar";
 import { useSelector, useDispatch } from "react-redux";
 import appTheme from "./styles/theme";
@@ -30,12 +30,15 @@ const App = () => {
 
   return (
     <Container
-      fluid
-      style={{
+      maxWidth="xl"
+      disableGutters
+      sx={{
+        minHeight: "100vh",
         background: theme.colors.gradientBackground,
         color: theme.colors.textLight,
         fontFamily: theme.colors.fontFamily,
-        minHeight: "100vh",
+        px: { xs: 0, sm: 2, md: 3 },
+        boxSizing: "border-box",
       }}
     >
       <AppNavbar handleLogout={handleLogout} />
