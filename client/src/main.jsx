@@ -9,14 +9,12 @@ import store from "./redux/store.js";
 import Test from "../Test.jsx";
 
 createRoot(document.getElementById("root")).render(
-  <StrictMode>
-    <Provider store={store}>
-      <BrowserRouter
-        future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
-      >
-        {/* <Test /> */}
-        <App />
-      </BrowserRouter>
-    </Provider>
-  </StrictMode>
+  <Provider store={store}>
+    <BrowserRouter
+      future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
+    >
+      {/* <Test /> */}
+      <App />
+    </BrowserRouter>
+  </Provider>
 );

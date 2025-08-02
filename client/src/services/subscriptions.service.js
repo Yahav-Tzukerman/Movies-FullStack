@@ -7,32 +7,23 @@ const API =
 const SUBSCRIPTIONS = `${API}/subscriptions`;
 
 class SubscriptionsService {
-  getAllSubscriptions(token) {
-    return axios.get(SUBSCRIPTIONS, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
+  getAllSubscriptions() {
+    return axios.get(SUBSCRIPTIONS);
   }
 
-  createSubscription(subscription, token) {
-    return axios.post(SUBSCRIPTIONS, subscription, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
+  createSubscription(subscription) {
+    return axios.post(SUBSCRIPTIONS, subscription);
   }
 
-  addMovieToSubscriptionByMember(memberId, movieData, token) {
+  addMovieToSubscriptionByMember(memberId, movieData) {
     return axios.put(
       `${SUBSCRIPTIONS}/by-member/${memberId}/addMovie`,
-      movieData,
-      {
-        headers: { Authorization: `Bearer ${token}` },
-      }
+      movieData
     );
   }
 
-  deleteSubscription(id, token) {
-    return axios.delete(`${SUBSCRIPTIONS}/${id}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
+  deleteSubscription(id) {
+    return axios.delete(`${SUBSCRIPTIONS}/${id}`);
   }
 }
 

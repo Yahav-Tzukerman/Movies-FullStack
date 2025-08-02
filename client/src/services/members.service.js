@@ -6,28 +6,20 @@ const API =
 const MEMBERS = `${API}/members`;
 
 class MembersService {
-  getAllMembers(token) {
-    return axios.get(MEMBERS, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
+  getAllMembers() {
+    return axios.get(MEMBERS);
   }
 
-  createMember(member, token) {
-    return axios.post(MEMBERS, member, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
+  createMember(member) {
+    return axios.post(MEMBERS, member);
   }
 
-  updateMember(id, member, token) {
-    return axios.put(`${MEMBERS}/${id}`, member, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
+  updateMember(id, member) {
+    return axios.put(`${MEMBERS}/${id}`, member);
   }
 
-  deleteMember(id, token) {
-    return axios.delete(`${MEMBERS}/${id}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
+  deleteMember(id) {
+    return axios.delete(`${MEMBERS}/${id}`);
   }
 }
 

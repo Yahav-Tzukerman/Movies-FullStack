@@ -3,8 +3,6 @@ import MoviesService from "../services/movies.service";
 import { useSelector } from "react-redux";
 
 export function useMovies() {
-  const { user } = useSelector((state) => state.auth);
-  const token = user?.token;
   const [movies, setMovies] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -13,23 +11,23 @@ export function useMovies() {
   const reload = useCallback(() => {
     setLoading(true);
     setError("");
-    MoviesService.getAllMovies(token)
+    MoviesService.getAllMovies()
       .then((res) => setMovies(res.data))
       .catch((err) =>
         setError(err.response?.data?.message || "Failed to fetch movies")
       )
       .finally(() => setLoading(false));
-  }, [token]);
+  }, []);
 
   useEffect(() => {
-    if (token) reload();
-  }, [token, reload]);
+    reload();
+  }, [reload]);
 
   const createMovie = async (movieData) => {
     setActionLoading(true);
     setError("");
     try {
-      await MoviesService.createMovie(movieData, token);
+      await MoviesService.createMovie(movieData);
       reload();
       return true;
     } catch (err) {
@@ -44,7 +42,7 @@ export function useMovies() {
     setActionLoading(true);
     setError("");
     try {
-      await MoviesService.updateMovie(id, movieData, token);
+      await MoviesService.updateMovie(id, movieData);
       reload();
       return true;
     } catch (err) {
@@ -59,7 +57,7 @@ export function useMovies() {
     setActionLoading(true);
     setError("");
     try {
-      await MoviesService.deleteMovie(id, token);
+      await MoviesService.deleteMovie(id);
       reload();
       return true;
     } catch (err) {

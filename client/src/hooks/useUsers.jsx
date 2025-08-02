@@ -3,8 +3,6 @@ import UsersService from "../services/users.service";
 import { useSelector } from "react-redux";
 
 export function useUsers() {
-  const { user } = useSelector((state) => state.auth);
-  const token = user?.token;
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -13,23 +11,23 @@ export function useUsers() {
   const reload = useCallback(() => {
     setLoading(true);
     setError("");
-    UsersService.getAllUsers(token)
+    UsersService.getAllUsers()
       .then((res) => setUsers(res.data))
       .catch((err) =>
         setError(err.response?.data?.message || "Failed to fetch users")
       )
       .finally(() => setLoading(false));
-  }, [token]);
+  }, []);
 
   useEffect(() => {
-    if (token) reload();
-  }, [token, reload]);
+    reload();
+  }, [reload]);
 
   const createUser = async (userData) => {
     setActionLoading(true);
     setError("");
     try {
-      await UsersService.createUser(userData, token);
+      await UsersService.createUser(userData);
       reload();
       return true;
     } catch (err) {
@@ -44,7 +42,7 @@ export function useUsers() {
     setActionLoading(true);
     setError("");
     try {
-      await UsersService.updateUser(id, userData, token);
+      await UsersService.updateUser(id, userData);
       reload();
       return true;
     } catch (err) {
@@ -59,7 +57,7 @@ export function useUsers() {
     setActionLoading(true);
     setError("");
     try {
-      await UsersService.deleteUser(id, token);
+      await UsersService.deleteUser(id);
       reload();
       return true;
     } catch (err) {

@@ -4,8 +4,6 @@ import SubscriptionsService from "../services/subscriptions.service";
 import { useSelector } from "react-redux";
 
 export function useMembers() {
-  const { user } = useSelector((state) => state.auth);
-  const token = user?.token;
   const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -14,23 +12,23 @@ export function useMembers() {
   const reload = useCallback(() => {
     setLoading(true);
     setError("");
-    MembersService.getAllMembers(token)
+    MembersService.getAllMembers()
       .then((res) => setMembers(res.data))
       .catch((err) =>
         setError(err.response?.data?.message || "Failed to fetch members")
       )
       .finally(() => setLoading(false));
-  }, [token]);
+  }, []);
 
   useEffect(() => {
-    if (token) reload();
-  }, [token, reload]);
+    reload();
+  }, [reload]);
 
   const createMember = async (memberData) => {
     setActionLoading(true);
     setError("");
     try {
-      await MembersService.createMember(memberData, token);
+      await MembersService.createMember(memberData);
       reload();
       return true;
     } catch (err) {
@@ -45,7 +43,7 @@ export function useMembers() {
     setActionLoading(true);
     setError("");
     try {
-      await MembersService.updateMember(id, memberData, token);
+      await MembersService.updateMember(id, memberData);
       reload();
       return true;
     } catch (err) {
@@ -60,7 +58,7 @@ export function useMembers() {
     setActionLoading(true);
     setError("");
     try {
-      await MembersService.deleteMember(id, token);
+      await MembersService.deleteMember(id);
       reload();
       return true;
     } catch (err) {
@@ -77,8 +75,7 @@ export function useMembers() {
     try {
       await SubscriptionsService.addMovieToSubscriptionByMember(
         memberId,
-        movieData,
-        token
+        movieData
       );
       reload();
       return true;
